@@ -1,0 +1,23 @@
+modules = ["nodejs-23"]
+run = "npm create vite@latest my-app --template react"
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "npm create vite@latest my-app --template react"]
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 39593680
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd my-app && npm install && npm run dev"
+
+[[ports]]
+localPort = 5173
+externalPort = 3000
+exposeLocalhost = true
