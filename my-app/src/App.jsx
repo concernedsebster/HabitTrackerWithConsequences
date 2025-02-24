@@ -1,44 +1,47 @@
-import { useState } from "react";
+import React from "react";
+function HabitTracker() {
+  const [habit, setHabit] = React.useState("");
+  const [trackingHabit, setTrackingHabit] = React.useState("");
+  const frequencyOptions = ["Everyday", "Every 2 days", "Every 3 days", "3 days a week"]
+  const [frequency, setFrequency] = React.useState("");
 
-function App() {
-  const [habit, setHabit] = useState(""); // Stores the habit input
-  const [trackingHabit, setTrackingHabit] = useState(null); // Stores the active habit
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    if (habit.trim() === "" || trackingHabit) return; // Prevent empty habit or multiple submissions
-
-    setTrackingHabit(habit); // Save the habit for tracking
-    setHabit(""); // Clear input field
-  };
-
-  const handleReset = () => {
-    setTrackingHabit(null); // Allow user to enter a new habit
-  };
-
+  function handleSubmit(e) {
+    e.preventDefault();
+    setTrackingHabit(habit);
+    console.log("📝 Tracking habit set:", habit);
+    setHabit("");
+  }
   return (
     <div>
       <h1>Habit Tracker</h1>
-
-      {!trackingHabit ? (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter a habit..."
-            value={habit}
-            onChange={(e) => setHabit(e.target.value)}
-          />
-          <button type="submit">Track Habit</button>
-        </form>
-      ) : (
-        <div>
-          <h2>Tracking: {trackingHabit}</h2>
-          <button onClick={handleReset}>Reset Habit</button>
-        </div>
-      )}
+      {trackingHabit ? 
+      <>
+        <h2>Your habit: {trackingHabit}</h2>
+        <p>How often do you want to do this?</p>
+        {frequencyOptions.map((option) => (
+          <label key={option}>
+            <input 
+              type="radio" 
+              name="habit frequency" 
+              value={option} 
+              onChange={(e) => {
+                console.log("Frequency selected:", e.target.value)setFrequency(e.target.value)}
+            />
+            {option}
+          </label>
+        ))}
+        <button onClick={() => setTrackingHabit("")}>Reset habit</button></>
+      : <form onSubmit={handleSubmit}>
+        <input
+          onChange={(e) => setHabit(e.target.value)}
+          type="text"
+          id="habit"
+          value={habit}
+        ></input>
+        <button type="submit">Track your One Habit</button>
+      </form>}
     </div>
   );
 }
+export default HabitTracker;
 
-export default App;
