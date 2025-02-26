@@ -1,4 +1,5 @@
 import React from "react";
+import PhoneAuth from "./PhoneAuth";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -51,6 +52,7 @@ function HabitTracker() {
   }
   return (
     <div>
+      <PhoneAuth />
       <h1>Habit Tracker</h1>
       {trackingHabit ? (
         <>
