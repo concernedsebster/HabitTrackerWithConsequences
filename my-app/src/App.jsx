@@ -1,8 +1,8 @@
-
 import React from "react";
 import PhoneAuth from "./PhoneAuth";
+import { signOut } from "firebase/auth";
 import { db } from "../firebaseConfig"; // ✅ Import Firestore
-import { collection, addDoc } from "firebase/firestore"; // ✅ Firestore functions
+import { collection, addDoc, where, getDocs } from "firebase/firestore"; // ✅ Firestore functions
 import { auth } from "../firebaseConfig"; // ✅ Import Firebase Auth
 import { onAuthStateChanged } from "firebase/auth"; // ✅ Listen for auth state changes
 
@@ -18,13 +18,32 @@ function HabitTracker() {
   const [trackingHabit, setTrackingHabit] = React.useState("");
   const [frequency, setFrequency] = React.useState("");
   const [commitmentDate, setCommitmentDate] = React.useState("");
-  
+
   const frequencyOptions = [
     "Everyday",
     "Every 2 days",
     "Every 3 days",
     "3 days a week",
   ];
+
+  function logOut() {
+    signOut(auth)
+      .then(() => {
+        console.log("✅ User logged out successfully!");
+
+        // Reset reCAPTCHA
+        if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear(); // 🗑️ Clear reCAPTCHA
+          window.recapthcaVerifier = null; // 🚫 Remove reCAPTCHA reference
+        }
+
+        setIsAuthenticated(false);
+        setUser(null);
+      })
+      .catch((error) => {
+        console.error("🚨 Error logging out:", error);
+      });
+  }
 
   // useEffect hooks to log when each component mounts
   React.useEffect(() => {
@@ -36,20 +55,48 @@ function HabitTracker() {
     });
     return () => unsubscribe(); // ✅ Cleanup
   }, []);
-  
+  // After login, Firestore checks if a habit exists for the user. If it exists, it loads the saved habit & frequency. If it doesn’t exist, user continues to enter a new habit
+  React.useEffect(() => {
+    if (user) {
+      console.log("🔄 Checking Firestore for saved habit...");
+      const fetchHabit = async () => {
+        try {
+          const q = query(
+            collection(db, "habits"),
+            where("userId", "==", user.uid),
+          );
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const habitData = querySnapshot.docs[0].data();
+            console.log("✅ Found habit:", habitData);
+            setTrackingHabit(habitData.habit);
+            setFrequency(habitData.frequency);
+            setCommitmentDate(habitData.commitmentDate);
+          } else {
+            console.log("🚨 No habit found for user:", user.uid);
+          }
+        } catch (error) {
+          console.error("🚨 Error fetching habit:", error);
+        }
+      };
+      fetchHabit();
+    }
+  }, [user]);
+
   React.useEffect(() => {
     if (habit) console.log("🥅 New habit set:", habit);
   }, [habit]);
-  
+
   React.useEffect(() => {
     if (trackingHabit)
       console.log("📝 New habit is being tracked:", trackingHabit);
   }, [trackingHabit]);
-  
+
   React.useEffect(() => {
     if (frequency) console.log("📅 New frequency set:", frequency);
   }, [frequency]);
-  
+
   React.useEffect(() => {
     if (habit || trackingHabit || frequency)
       console.log(
@@ -64,7 +111,6 @@ function HabitTracker() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     if (!user) {
       console.log("🚨 User not logged in!");
       return;
@@ -86,12 +132,13 @@ function HabitTracker() {
       console.error("🚨 Error saving habit:", error);
     }
   }
-  
+
   return (
     <div>
       {isAuthenticated ? (
         <>
           <h1>Habit Tracker</h1>
+          <button onClick={logOut}>Log Out</button>
           {trackingHabit ? (
             <>
               <h2>Your habit: {trackingHabit}</h2>
@@ -121,9 +168,7 @@ function HabitTracker() {
                   />
                 </div>
               )}
-              <button onClick={() => setTrackingHabit("")}>
-                Reset habit
-              </button>
+              <button onClick={() => setTrackingHabit("")}>Reset habit</button>
             </>
           ) : (
             <form onSubmit={handleSubmit}>

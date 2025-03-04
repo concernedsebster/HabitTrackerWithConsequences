@@ -1,0 +1,19 @@
+📅 New frequency set: Every 3 days
+🔄 State changed! Habit:  Tracking habit: eat more veggies Frequency: Every 3 days
+✅ User signed out successfully!
+Failed to initialize reCAPTCHA Enterprise config. Triggering the reCAPTCHA v2 verification.
+🚨 Invalid OTP: 
+_FirebaseError {code: "auth/internal-error", customData: {…}, name: "FirebaseError"}
+code: "auth/internal-error"
+customData: Object
+name: "FirebaseError"
+message: "Firebase: Error (auth/internal-error)."
+stack: "FirebaseError: Firebase: Error (auth/internal-error).↵ at createErrorInternal (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:704:37)↵ at _assert (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:710:11)↵ at RecaptchaVerifier.assertNotDestroyed (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:6219:5)↵ at RecaptchaVerifier._reset (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:6167:10)↵ at _verifyPhoneNumber (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:6461:66)↵ at async signInWithPhoneNumber (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/node_modules/.vite/deps/firebase_auth.js?v=552000be:6298:26)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+at t.value (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

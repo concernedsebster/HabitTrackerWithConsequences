@@ -13,16 +13,36 @@ function PhoneAuth({ setIsAuthenticated }) {
 
   function setupRecaptcha() {
     if (!window.recaptchaVerifier) {
+      // Only create reCAPTCHA if it doesn't exist
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
         "recaptcha-container",
-        { size: "invisible" },
+        {
+          size: "invisible",
+          callback: (response) => {
+            console.log("✅ Recaptcha verified!", response);
+          },
+          "expired-callback": () => {
+            console.log("❌ Recaptcha expired! Resetting...");
+            window.recaptchaVerifier.clear();
+            window.recaptchaVerifier = null;
+            setupRecaptcha(); // Reinialize reCAPTCHA
+          },
+        },
       );
     }
   }
 
   function handleSendCode() {
-    setupRecaptcha();
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.warn("⚠️ ReCAPTCHA already cleared or not initialized", error);
+      }
+      window.recaptchaVerifier = null;
+    }
+    setupRecaptcha(); // Reinitialize reCAPTCHA before sending OTP
     signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
       .then((confirmation) => {
         setConfirmationResult(confirmation);
