@@ -14,10 +14,14 @@ function HabitTracker() {
   // State declarations
   const [user, setUser] = React.useState(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [step, setStep] = React.useState(1);
+  const [name, setName] = React.useState("");
   const [habit, setHabit] = React.useState("");
   const [trackingHabit, setTrackingHabit] = React.useState("");
   const [frequency, setFrequency] = React.useState("");
   const [commitmentDate, setCommitmentDate] = React.useState("");
+  const [failureConsequence, setFailureConsequence] = React.useState("");
+  const [successConsequence, setSuccessConsequence] = React.useState("");
 
   const frequencyOptions = [
     "Everyday",
@@ -109,25 +113,47 @@ function HabitTracker() {
       );
   }, [habit, trackingHabit, frequency]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  function isStepValid() {
+    switch (step) {
+      case 1: // Name Step
+        return name.trim() !== ""; // Name must not be empty
+      case 2: // Habit Step
+        return habit.trim() !== ""; // Habit must not be empty
+      case 3: // Frequency Step
+        return frequency.trim() !== ""; // Frequency must be selected
+      case 4: // Commitment Date Step
+        return commitmentDate.trim() !== ""; // Date must be selected
+      case 5: // Failure Consequence Step
+        return failureConsequence.trim() !== ""; // Must enter a failure consequence
+      case 6: // Success Reward Step
+        return successConsequence.trim() !== ""; // Must enter a success reward
+      default:
+        return false;
+    }
+  }
+
+  async function handleSubmit() {
     if (!user) {
       console.log("🚨 User not logged in!");
       return;
     }
+
     try {
       await addDoc(collection(db, "habits"), {
         userId: user.uid,
+        name: name,
         habit: habit,
-        trackingHabit: trackingHabit,
+        trackingHabit: habit, // 🛠️ You can rename trackingHabit later if needed
         frequency: frequency,
         commitmentDate: commitmentDate,
+        failureConsequence: failureConsequence,
+        successConsequence: successConsequence,
         createdAt: new Date(),
       });
+
       console.log("✅ Habit saved to Firestore:", habit);
-      setTrackingHabit(habit);
-      console.log("📝 Tracking habit set:", habit);
-      setHabit("");
+      setTrackingHabit(habit); // ✅ Display the habit on homepage
+      setStep(8); // Move user to the habit-tracking homepage
     } catch (error) {
       console.error("🚨 Error saving habit:", error);
     }
@@ -139,47 +165,134 @@ function HabitTracker() {
         <>
           <h1>Habit Tracker</h1>
           <button onClick={logOut}>Log Out</button>
-          {trackingHabit ? (
+
+          {/* ✅ Real-Time Summary Sentence (Scalable to Future Typeform-like UI) */}
+          <p>
+            {name
+              ? `${name} is committing to a habit of `
+              : "You are committing to a habit of "}
+            {habit || "______"} for {frequency || "______"} until{" "}
+            {commitmentDate || "______"}. If you fail, then{" "}
+            {failureConsequence || "______"} will happen. If you succeed, then{" "}
+            {successConsequence || "______"} will happen.
+          </p>
+
+          {/* Step 1: Enter Name */}
+          {step === 1 && (
             <>
-              <h2>Your habit: {trackingHabit}</h2>
+              <p>What's your name?</p>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <button onClick={() => setStep(2)} disabled={!isStepValid()}>
+                Next
+              </button>
+            </>
+          )}
+
+          {/* Step 2: Enter Habit */}
+          {step === 2 && (
+            <>
+              <p>What habit do you want to track?</p>
+              <input
+                type="text"
+                value={habit}
+                onChange={(e) => setHabit(e.target.value)}
+              />
+              <button onClick={() => setStep(1)}>Back</button>
+              <button onClick={() => setStep(3)} disabled={!isStepValid()}>
+                Next
+              </button>
+            </>
+          )}
+
+          {/* Step 3: Select Frequency */}
+          {step === 3 && (
+            <>
               <p>How often do you want to do this?</p>
               {frequencyOptions.map((option) => (
                 <label key={option}>
                   <input
                     type="radio"
-                    name="habit frequency"
+                    name="habitFrequency"
                     value={option}
-                    onChange={(e) => {
-                      console.log("Frequency selected:", e.target.value);
-                      setFrequency(e.target.value);
-                    }}
+                    onChange={(e) => setFrequency(e.target.value)}
                   />
                   {option}
                 </label>
               ))}
-              {frequency && (
-                <div>
-                  <p>How long do you want to commit to this one habit?</p>
-                  <input
-                    type="date"
-                    value={commitmentDate}
-                    onChange={(e) => setCommitmentDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]} // Set min date to today's date
-                  />
-                </div>
-              )}
-              <button onClick={() => setTrackingHabit("")}>Reset habit</button>
+              <button onClick={() => setStep(2)}>Back</button>
+              <button onClick={() => setStep(4)} disabled={!isStepValid()}>
+                Next
+              </button>
             </>
-          ) : (
-            <form onSubmit={handleSubmit}>
+          )}
+
+          {/* Step 4: Select Commitment Date */}
+          {step === 4 && (
+            <>
+              <p>How long do you want to commit to this habit?</p>
               <input
-                onChange={(e) => setHabit(e.target.value)}
-                type="text"
-                id="habit"
-                value={habit}
+                type="date"
+                value={commitmentDate}
+                onChange={(e) => setCommitmentDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
               />
-              <button type="submit">Track your One Habit</button>
-            </form>
+              <button onClick={() => setStep(3)}>Back</button>
+              <button onClick={() => setStep(5)} disabled={!isStepValid()}>
+                Next
+              </button>
+            </>
+          )}
+
+          {/* Step 5: Failure Consequence */}
+          {step === 5 && (
+            <>
+              <p>What happens if you fail?</p>
+              <input
+                type="text"
+                value={failureConsequence}
+                onChange={(e) => setFailureConsequence(e.target.value)}
+              />
+              <button onClick={() => setStep(4)}>Back</button>
+              <button onClick={() => setStep(6)} disabled={!isStepValid()}>
+                Next
+              </button>
+            </>
+          )}
+
+          {/* Step 6: Success Reward */}
+          {step === 6 && (
+            <>
+              <p>What reward will you get if you succeed?</p>
+              <input
+                type="text"
+                value={successConsequence}
+                onChange={(e) => setSuccessConsequence(e.target.value)}
+              />
+              <button onClick={() => setStep(5)}>Back</button>
+              <button onClick={() => setStep(7)} disabled={!isStepValid()}>
+                Next
+              </button>
+            </>
+          )}
+
+          {/* Step 7: Review & Confirm */}
+          {step === 7 && (
+            <>
+              <h2>Review Your Habit Plan</h2>
+              <p>
+                <strong>{name}</strong> is committing to{" "}
+                <strong>{habit}</strong> for <strong>{frequency}</strong>, until{" "}
+                <strong>{commitmentDate}</strong>. If they fail,{" "}
+                <strong>{failureConsequence}</strong> will happen. If they
+                succeed, they will <strong>{successConsequence}</strong>.
+              </p>
+              <button onClick={() => setStep(6)}>Back</button>
+              <button onClick={handleSubmit}>Track Your One Habit</button>
+            </>
           )}
         </>
       ) : (
