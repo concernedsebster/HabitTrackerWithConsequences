@@ -2,7 +2,7 @@ import React from "react";
 import PhoneAuth from "./PhoneAuth";
 import { signOut } from "firebase/auth";
 import { db } from "../firebaseConfig"; // ✅ Import Firestore
-import { collection, addDoc, where, getDocs, getDoc } from "firebase/firestore"; // ✅ Firestore functions
+import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit } from "firebase/firestore"; // ✅ Firestore functions
 import { auth } from "../firebaseConfig"; // ✅ Import Firebase Auth
 import { onAuthStateChanged } from "firebase/auth"; // ✅ Listen for auth state changes
 
@@ -68,15 +68,24 @@ function HabitTracker() {
           const q = query(
             collection(db, "habits"),
             where("userId", "==", user.uid),
+            orderBy("createdAt", "desc"),
+            limit(1)
           );
           const querySnapshot = await getDocs(q);
+          console.log("Firestore returned:", querySnapshot.docs.length, "documents");
+          querySnapshot.docs.forEach((doc, index) => console.log(`Doc ${index}:`, doc.data()));
 
           if (!querySnapshot.empty) {
             const habitData = querySnapshot.docs[0].data();
             console.log("✅ Found habit:", habitData);
+            setName(habitData.name);
             setTrackingHabit(habitData.habit);
             setFrequency(habitData.frequency);
             setCommitmentDate(habitData.commitmentDate);
+            setFailureConsequence(habitData.failureConsequence);
+            setSuccessConsequence(habitData.successConsequence);
+
+            setStep(8);
           } else {
             console.log("🚨 No habit found for user:", user.uid);
           }
@@ -168,17 +177,6 @@ function HabitTracker() {
         <>
           <h1>Habit Tracker</h1>
           <button onClick={logOut}>Log Out</button>
-
-          {/* ✅ Real-Time Summary Sentence (Scalable to Future Typeform-like UI) */}
-          <p>
-            {name
-              ? `${name} is committing to a habit of `
-              : "You are committing to a habit of "}
-            {habit || "______"} for {frequency || "______"} until{" "}
-            {commitmentDate || "______"}. If you fail, then{" "}
-            {failureConsequence || "______"} will happen. If you succeed, then{" "}
-            {successConsequence || "______"} will happen.
-          </p>
 
           {/* Step 1: Enter Name */}
           {step === 1 && (
@@ -295,6 +293,15 @@ function HabitTracker() {
               </p>
               <button onClick={() => setStep(6)}>Back</button>
               <button onClick={handleSubmit}>Track Your One Habit</button>
+            </>
+          )}
+
+          {step === 8 && (
+            <>
+              <h2>Your Habit Tracker</h2>
+              <p><strong>{name}</strong> is tracking <strong>{trackingHabit}</strong> with a frequency of <strong>{frequency}</strong>, until <strong>{commitmentDate}</strong>.</p>
+              <p>If you fail, <strong>{failureConsequence}</strong> happens. If you succeed, <strong>{successConsequence}</strong> happens!</p>
+              <button onClick={logOut}>Log Out</button>
             </>
           )}
         </>
