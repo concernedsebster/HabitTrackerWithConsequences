@@ -2,7 +2,7 @@ import React from "react";
 import PhoneAuth from "./PhoneAuth";
 import { signOut } from "firebase/auth";
 import { db } from "../firebaseConfig"; // ✅ Import Firestore
-import { collection, addDoc, where, getDocs } from "firebase/firestore"; // ✅ Firestore functions
+import { collection, addDoc, where, getDocs, getDoc } from "firebase/firestore"; // ✅ Firestore functions
 import { auth } from "../firebaseConfig"; // ✅ Import Firebase Auth
 import { onAuthStateChanged } from "firebase/auth"; // ✅ Listen for auth state changes
 
@@ -139,7 +139,7 @@ function HabitTracker() {
     }
 
     try {
-      await addDoc(collection(db, "habits"), {
+      const docRef = await addDoc(collection(db, "habits"), {
         userId: user.uid,
         name: name,
         habit: habit,
@@ -150,6 +150,9 @@ function HabitTracker() {
         successConsequence: successConsequence,
         createdAt: new Date(),
       });
+      // ✅ Fetch the document we just saved for verification
+      const savedDoc = await getDoc(docRef);
+      console.log("🛠️ Verified saved habit:", savedDoc.data());
 
       console.log("✅ Habit saved to Firestore:", habit);
       setTrackingHabit(habit); // ✅ Display the habit on homepage
