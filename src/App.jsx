@@ -73,10 +73,21 @@ function HabitTracker() {
           );
           const querySnapshot = await getDocs(q);
           console.log("Firestore returned:", querySnapshot.docs.length, "documents");
-          querySnapshot.docs.forEach((doc, index) => console.log(`Doc ${index}:`, doc.data()));
+          querySnapshot.docs.forEach((doc, index) => console.log(`Doc ${index}:`, doc.data(), " (Created at:", doc.data().createdAt, ")" ));
 
           if (!querySnapshot.empty) {
             const habitData = querySnapshot.docs[0].data();
+            // Convert Firestore timestamp to a readable date
+            if (habitData.createdAt && habitData.createdAt.seconds) {
+              const date = new Date(habitData.createdAt.seconds * 1000); // Convert seconds to milliseconds
+              habitData.createdAt = date.toLocaleDateString("en-US", { 
+                year: "numeric", 
+                month: "long", 
+                day: "numeric", 
+                hour: "2-digit",
+                minute: "2-digit"
+              }); 
+            }
             console.log("✅ Found habit:", habitData);
             setName(habitData.name);
             setTrackingHabit(habitData.habit);
@@ -175,7 +186,7 @@ function HabitTracker() {
     <div>
       {isAuthenticated ? (
         <>
-          <h1>Habit Tracker</h1>
+          <h1>✨One Habit✨</h1>
           <button onClick={logOut}>Log Out</button>
 
           {/* Step 1: Enter Name */}
