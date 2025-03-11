@@ -2,7 +2,7 @@ import React from "react";
 import PhoneAuth from "./PhoneAuth";
 import { signOut } from "firebase/auth";
 import { db } from "../firebaseConfig"; // ✅ Import Firestore
-import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit } from "firebase/firestore"; // ✅ Firestore functions
+import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit, serverTimestamp } from "firebase/firestore"; // ✅ Firestore functions
 import { auth } from "../firebaseConfig"; // ✅ Import Firebase Auth
 import { onAuthStateChanged } from "firebase/auth"; // ✅ Listen for auth state changes
 
@@ -159,8 +159,15 @@ function HabitTracker() {
       return;
     }
 
+    // 🚨 Ensure required fields are not empty before submission
+    if (!name || !habit || !frequency || !commitmentDate || !failureConsequence || !successConsequence) {
+    console.log("🚨 Error: All fields must be filled before saving.");
+    return;
+    }
+
     try {
-      const docRef = await addDoc(collection(db, "habits"), {
+      const docRef = doc(db, "habits", user.uid);
+      await setDoc(docRef, {
         userId: user.uid,
         name: name,
         habit: habit,
@@ -169,7 +176,7 @@ function HabitTracker() {
         commitmentDate: commitmentDate,
         failureConsequence: failureConsequence,
         successConsequence: successConsequence,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       });
       // ✅ Fetch the document we just saved for verification
       const savedDoc = await getDoc(docRef);
