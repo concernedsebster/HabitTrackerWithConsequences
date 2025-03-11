@@ -15,4 +15,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+window.firebaseApp = app;
+window.firebaseAuth = auth;
+window.firebaseDB = db;
+
 export { auth, db, RecaptchaVerifier, signInWithPhoneNumber };

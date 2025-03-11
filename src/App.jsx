@@ -61,52 +61,53 @@ function HabitTracker() {
   }, []);
   // After login, Firestore checks if a habit exists for the user. If it exists, it loads the saved habit & frequency. If it doesn’t exist, user continues to enter a new habit
   React.useEffect(() => {
-    if (user) {
-      console.log("🔄 Checking Firestore for saved habit...");
-      const fetchHabit = async () => {
-        try {
-          const q = query(
-            collection(db, "habits"),
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc"),
-            limit(1)
-          );
-          const querySnapshot = await getDocs(q);
-          console.log("Firestore returned:", querySnapshot.docs.length, "documents");
-          querySnapshot.docs.forEach((doc, index) => console.log(`Doc ${index}:`, doc.data(), " (Created at:", doc.data().createdAt, ")" ));
-
-          if (!querySnapshot.empty) {
-            const habitData = querySnapshot.docs[0].data();
-            // Convert Firestore timestamp to a readable date
-            if (habitData.createdAt && habitData.createdAt.seconds) {
-              const date = new Date(habitData.createdAt.seconds * 1000); // Convert seconds to milliseconds
-              habitData.createdAt = date.toLocaleDateString("en-US", { 
-                year: "numeric", 
-                month: "long", 
-                day: "numeric", 
-                hour: "2-digit",
-                minute: "2-digit"
-              }); 
-            }
-            console.log("✅ Found habit:", habitData);
-            setName(habitData.name);
-            setTrackingHabit(habitData.habit);
-            setFrequency(habitData.frequency);
-            setCommitmentDate(habitData.commitmentDate);
-            setFailureConsequence(habitData.failureConsequence);
-            setSuccessConsequence(habitData.successConsequence);
-
-            setStep(8);
-          } else {
-            console.log("🚨 No habit found for user:", user.uid);
-          }
-        } catch (error) {
-          console.error("🚨 Error fetching habit:", error);
-        }
-      };
-      fetchHabit();
+    if (!user) {
+      console.log("⏳ Waiting for user authentication before checking Firestore...");
+      return; // Prevents Firestore query from running without authentication
     }
-  }, [user]);
+    
+    console.log("🔄 Checking Firestore for saved habit...");
+    
+    const fetchHabit = async () => {
+      try {
+        // 🔐 Properly filter by authenticated user
+        const q = query(
+          collection(db, "habits"),
+          where("userId", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          limit(1)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        console.log("Firestore returned:", querySnapshot.docs.length, "documents");
+        
+        querySnapshot.docs.forEach((doc, index) => 
+          console.log(`Doc ${index}:`, doc.data(), "(Created at:", doc.data().createdAt, ")")
+        );
+        
+        if (!querySnapshot.empty) {
+          const habitData = querySnapshot.docs[0].data();
+          console.log("✅ Found habit:", habitData);
+
+          // Set retrieved habit data in state
+          setName(habitData.name);
+          setTrackingHabit(habitData.habit);
+          setFrequency(habitData.frequency);
+          setCommitmentDate(habitData.commitmentDate);
+          setFailureConsequence(habitData.failureConsequence);
+          setSuccessConsequence(habitData.successConsequence);
+          
+          setStep(8); // Move user to habit-tracking UI
+        } else {
+          console.log("🚨 No habit found for user:", user.uid);
+        }
+      } catch (error) {
+        console.error("🚨 Error fetching habit:", error);
+      }
+    };
+  
+    fetchHabit();
+  }, [user]); // ✅ Ensure effect runs only when `user` state updates
 
   React.useEffect(() => {
     if (habit) console.log("🥅 New habit set:", habit);
