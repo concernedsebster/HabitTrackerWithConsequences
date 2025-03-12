@@ -22,6 +22,7 @@ function HabitTracker() {
   const [commitmentDate, setCommitmentDate] = React.useState("");
   const [failureConsequence, setFailureConsequence] = React.useState("");
   const [successConsequence, setSuccessConsequence] = React.useState("");
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -158,7 +159,7 @@ function HabitTracker() {
       console.log("🚨 User not logged in!");
       return;
     }
-
+    setIsModalOpen(false);
     // 🚨 Ensure required fields are not empty before submission
     if (!name || !habit || !frequency || !commitmentDate || !failureConsequence || !successConsequence) {
     console.log("🚨 Error: All fields must be filled before saving.");
@@ -180,7 +181,11 @@ function HabitTracker() {
       });
       // ✅ Fetch the document we just saved for verification
       const savedDoc = await getDoc(docRef);
-      console.log("🛠️ Verified saved habit:", savedDoc.data());
+      if (savedDoc.exists()) {
+        console.log("🛠️ Verified saved habit:", savedDoc.data());
+      } else {
+        console.log("🚨 Error: Habit document not found after saving.");
+      }
 
       console.log("✅ Habit saved to Firestore:", habit);
       setTrackingHabit(habit); // ✅ Display the habit on homepage
@@ -188,6 +193,20 @@ function HabitTracker() {
     } catch (error) {
       console.error("🚨 Error saving habit:", error);
     }
+
+function Modal({ isOpen, onClose, onConfirm, message }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <p>{message}</p>
+        <button onClick={onConfirm}>Confirm</button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  );
+}
   }
 
   return (
@@ -310,8 +329,16 @@ function HabitTracker() {
                 <strong>{failureConsequence}</strong> will happen. If they
                 succeed, they will <strong>{successConsequence}</strong>.
               </p>
+              <div>
+                <Modal
+                  isOpen={isModalOpen}
+                  onClose={()=> setIsModalOpen(false)}
+                  onConfirm={handleSubmit}
+                  message="⚠️ Your submission is final. You can't edit it unless you start over. Are you sure?"
+                />
+              </div>
               <button onClick={() => setStep(6)}>Back</button>
-              <button onClick={handleSubmit}>Track Your One Habit</button>
+              <button onClick={()=>setIsModalOpen(true)}>Track Your One Habit</button>
             </>
           )}
 
