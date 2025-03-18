@@ -1,10 +1,24 @@
+// HabitTracker.js (main component)
 import React from "react";
 import PhoneAuth from "./PhoneAuth";
 import { signOut } from "firebase/auth";
-import { db } from "../firebaseConfig"; // ✅ Import Firestore
-import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit, serverTimestamp, deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore"; // ✅ Firestore functions
-import { auth } from "../firebaseConfig"; // ✅ Import Firebase Auth
-import { onAuthStateChanged } from "firebase/auth"; // ✅ Listen for auth state changes
+import { db } from "../firebaseConfig";
+import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit, serverTimestamp, deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+import { auth } from "../firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+
+// Import our new components
+import ConfirmationModal from "./components/modals/ConfirmationModal";
+import DeleteHabitModal from "./components/modals/DeleteHabitModal";
+import DateEditModal from "./components/modals/DateEditModal";
+import NameStep from "./components/habitForm/NameStep";
+import HabitStep from "./components/habitForm/HabitStep";
+import FrequencyStep from "./components/habitForm/FrequencyStep";
+import CommitmentDateStep from "./components/habitForm/CommitmentDateStep";
+import FailureConsequenceStep from "./components/habitForm/FailureConsequenceStep";
+import SuccessConsequenceStep from "./components/habitForm/SuccessRewardStep";
+import ReviewStep from "./components/habitForm/ReviewStep";
+import HabitDisplay from "./components/habitTracker/habitTracker";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -27,6 +41,7 @@ function HabitTracker() {
   const [newCommitmentDate, setNewCommitmentDate] = React.useState("");
   const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState(false);
   const [isDateEditModalOpen, setIsDateModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -201,19 +216,7 @@ function HabitTracker() {
     }
   }
     
-function Modal({ isOpen, onClose, onConfirm, message }) {
-  if (!isOpen) return null;
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <p>{message}</p>
-        <button onClick={onConfirm}>Confirm</button>
-        <button onClick={onClose}>Cancel</button>
-      </div>
-    </div>
-  );
-}
 
   async function deleteHabit() {
   if (!user) return;
@@ -275,23 +278,6 @@ function Modal({ isOpen, onClose, onConfirm, message }) {
     setHasEditedCommitmentDate(false); // Reset the edited date flag
     console.log("🚨 Date edit cancelled.");
   }
-  
-  function DateEditModal({ isOpen, onClose, onConfirm, message }) {
-    if (!isOpen) return null;
-
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h3>One-time Date Change</h3>
-          <p>Are you absolutely sure you want to change your commitment date? You can only do this ONCE.</p>
-          <div className="modal-buttons">
-            <button onClick={onConfirm}>Yes, change it</button>
-            <button onClick={onClose}>No, keep it</button>
-          </div>
-        </div>
-      </div>  
-    );
-  }
 
 
   return (
@@ -303,185 +289,57 @@ function Modal({ isOpen, onClose, onConfirm, message }) {
 
           {/* Step 1: Enter Name */}
           {step === 1 && (
-            <>
-              <p>What's your name?</p>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <button onClick={() => setStep(2)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
+            <NameStep 
+              name={name} 
+              setName={setName} 
+              onNext={() => setStep(2)} 
+              isValid={isStepValid()} 
+            />
           )}
 
           {/* Step 2: Enter Habit */}
           {step === 2 && (
-            <>
-              <p>What habit do you want to track?</p>
-              <input
-                type="text"
-                value={habit}
-                onChange={(e) => setHabit(e.target.value)}
-              />
-              <button onClick={() => setStep(1)}>Back</button>
-              <button onClick={() => setStep(3)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
-          )}
-
-          {/* Step 3: Select Frequency */}
-          {step === 3 && (
-            <>
-              <p>How often do you want to do this?</p>
-              {frequencyOptions.map((option) => (
-                <label key={option}>
-                  <input
-                    type="radio"
-                    name="habitFrequency"
-                    value={option}
-                    onChange={(e) => setFrequency(e.target.value)}
-                  />
-                  {option}
-                </label>
-              ))}
-              <button onClick={() => setStep(2)}>Back</button>
-              <button onClick={() => setStep(4)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
-          )}
-
-          {/* Step 4: Select Commitment Date */}
-          {step === 4 && (
-            <>
-              <p>How long do you want to commit to this habit?</p>
-              <input
-                type="date"
-                value={commitmentDate}
-                onChange={(e) => setCommitmentDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-              />
-              <button onClick={() => setStep(3)}>Back</button>
-              <button onClick={() => setStep(5)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
-          )}
-
-          {/* Step 5: Failure Consequence */}
-          {step === 5 && (
-            <>
-              <p>What happens if you fail?</p>
-              <input
-                type="text"
-                value={failureConsequence}
-                onChange={(e) => setFailureConsequence(e.target.value)}
-              />
-              <button onClick={() => setStep(4)}>Back</button>
-              <button onClick={() => setStep(6)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
-          )}
-
-          {/* Step 6: Success Reward */}
-          {step === 6 && (
-            <>
-              <p>What reward will you get if you succeed?</p>
-              <input
-                type="text"
-                value={successConsequence}
-                onChange={(e) => setSuccessConsequence(e.target.value)}
-              />
-              <button onClick={() => setStep(5)}>Back</button>
-              <button onClick={() => setStep(7)} disabled={!isStepValid()}>
-                Next
-              </button>
-            </>
-          )}
-
-          {/* Step 7: Review & Confirm */}
-          {step === 7 && (
-            <>
-              <h2>Review Your Habit Plan</h2>
-              <p>
-                <strong>{name}</strong> is committing to{" "}
-                <strong>{habit}</strong> for <strong>{frequency}</strong>, until{" "}
-                <strong>{commitmentDate}</strong>. If they fail,{" "}
-                <strong>{failureConsequence}</strong> will happen. If they
-                succeed, they will <strong>{successConsequence}</strong>.
-              </p>
-              <div>
-                <Modal
-                  isOpen={isModalOpen}
-                  onClose={()=> setIsModalOpen(false)}
-                  onConfirm={handleSubmit}
-                  message="⚠️ Your submission is final. You can't edit habit details except commitment date (once). Are you sure?"
-                />
-              </div>
-              <button onClick={() => setStep(6)}>Back</button>
-              <button onClick={()=>setIsModalOpen(true)}>Track Your One Habit</button>
-            </>
-          )}
-
-          {step === 8 && (
-            <>
-              <h2>Your Habit Tracker</h2>
-              <p><strong>{name}</strong> is tracking <strong>{trackingHabit}</strong> with a frequency of <strong>{frequency}</strong>, until <strong>{commitmentDate}</strong>.</p>
-              <p>If you fail, <strong>{failureConsequence}</strong> happens. If you succeed, <strong>{successConsequence}</strong> happens!</p>
-              <button onClick={logOut}>Log Out</button>
-              <button onClick={() => deleteHabit()}>Reset & Start Over</button>
-              <div className="commitment-date-section">
-                  <p>
-                    <strong>Commitment Date:</strong> {commitmentDate}
-                    {!hasEditedCommitmentDate && (
-                      <button
-                      onClick={handleEditDateClick}
-                      className="edit-date-button"
-                      >
-                        Edit Commitment Date
-                      </button>
-                    )}
-                  </p>
-
-                  {!hasEditedCommitmentDate && (
-                    <div className="edit-tooltip">
-                      You can only change this date once. After that, it's final.
-                      </div>
-                    )}
-
-                  {isEditingDate && (
-                    <div className="date-edit-container">
-                      <input
-                      type="date"
-                      value={newCommitmentDate}
-                      onChange={(e) => setNewCommitmentDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
-                      />
-                      <button onClick={() => setIsDateModalOpen(true)}
-                        className="save-date-button"
-                        >
-                          Save New Date
-                        </button>
-                        <button
-                        onClick={cancelDateEdit}
-                        className="cancel-date-button"
-                        >
-                          Cancel
-                        </button>
-              </div>
-                  )}
-            <DateEditModal
-              isOpen={isDateEditModalOpen}
-              onConfirm={confirmDateEdit}
-              onCancel={cancelDateEdit}
+            <HabitStep 
+              habit={habit} 
+              setHabit={setHabit} 
+              onBack={() => setStep(1)} 
+              onNext={() => setStep(3)} 
+              isValid={isStepValid()} 
             />
-            </div>
-            </>
           )}
+
+          {/* Continue with other steps... */}
+
+          {/* Step 8: Habit Display */}
+          {step === 8 && (
+            <HabitDisplay 
+              name={name}
+              trackingHabit={trackingHabit}
+              frequency={frequency}
+              commitmentDate={commitmentDate}
+              failureConsequence={failureConsequence}
+              successConsequence={successConsequence}
+              isDeleteModalOpen={isDeleteModalOpen}
+              setIsDeleteModalOpen={setIsDeleteModalOpen}
+              deleteHabit={deleteHabit}
+              hasEditedCommitmentDate={hasEditedCommitmentDate}
+              handleEditDateClick={handleEditDateClick}
+              isEditingDate={isEditingDate}
+              newCommitmentDate={newCommitmentDate}
+              setNewCommitmentDate={setNewCommitmentDate}
+              isDateEditModalOpen={isDateEditModalOpen}
+              confirmDateEdit={confirmDateEdit}
+              cancelDateEdit={cancelDateEdit}
+              logOut={logOut}
+            />
+          )}
+
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleSubmit}
+            message="⚠️ Your submission is final. You can't edit it unless you start over. Are you sure?"
+          />
         </>
       ) : (
         <PhoneAuth setIsAuthenticated={setIsAuthenticated} />
