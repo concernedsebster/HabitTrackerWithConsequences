@@ -1,5 +1,5 @@
 import React from "react"
-function SuccessConsequence({ successConsequence, setSuccessConsequence, onBack, onNext, isValid }) {
+function SuccessConsequenceStep({ successConsequence, setSuccessConsequence, onBack, onNext, isValid }) {
     return (
         <>
             <p>What reward will you get if you succeed?</p>
@@ -15,4 +15,4 @@ function SuccessConsequence({ successConsequence, setSuccessConsequence, onBack,
         </>
     )
 }
-export default SuccessConsequence;
+export default SuccessConsequenceStep;

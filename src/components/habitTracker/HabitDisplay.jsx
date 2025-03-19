@@ -1,7 +1,7 @@
 // src/components/habitTracker/HabitDisplay.js
 import React from 'react';
-import DeleteHabitModal from '../modals/DeleteHabitModal';
-import DateEditModal from '../modals/DateEditModal';
+import DeleteHabitModal from 'src/modals/DeleteHabitModal.js';
+import DateEditModal from 'src/modals/DateEditModal.js';
 
 function HabitDisplay({ 
   name, 

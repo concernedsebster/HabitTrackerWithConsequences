@@ -1,24 +1,27 @@
-// HabitTracker.js (main component)
 import React from "react";
-import PhoneAuth from "./PhoneAuth";
 import { signOut } from "firebase/auth";
-import { db } from "../firebaseConfig";
-import { collection, addDoc, where, getDocs, getDoc, query, orderBy, limit, serverTimestamp, deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
-// Import our new components
-import ConfirmationModal from "./components/modals/ConfirmationModal";
-import DeleteHabitModal from "./components/modals/DeleteHabitModal";
-import DateEditModal from "./components/modals/DateEditModal";
-import NameStep from "./components/habitForm/NameStep";
-import HabitStep from "./components/habitForm/HabitStep";
-import FrequencyStep from "./components/habitForm/FrequencyStep";
-import CommitmentDateStep from "./components/habitForm/CommitmentDateStep";
-import FailureConsequenceStep from "./components/habitForm/FailureConsequenceStep";
-import SuccessConsequenceStep from "./components/habitForm/SuccessRewardStep";
-import ReviewStep from "./components/habitForm/ReviewStep";
-import HabitDisplay from "./components/habitTracker/habitTracker";
+// Import service functions
+import { 
+  fetchUserHabit, 
+  saveHabit, 
+  updateCommitmentDate, 
+  deleteUserHabit
+} from "./services/habitService.js";
+
+// Import components
+import PhoneAuth from "src/components/auth/PhoneAuth";
+import ConfirmationModal from "./modals/ConfirmationModal.js";
+import NameStep from "src/components/habitForm/NameStep";
+import HabitStep from "src/components/habitForm/HabitStep";
+import FrequencyStep from "src/components/habitForm/FrequencyStep";
+import CommitmentDateStep from "src/components/habitForm/CommitmentDateStep";
+import FailureConsequenceStep from "src/components/habitForm/FailureConsequenceStep";
+import SuccessConsequenceStep from "src/components/habitForm/SuccessConsequenceStep";
+import ReviewStep from "src/components/habitForm/ReviewStep";
+import HabitDisplay from "src/components/habitTracker/HabitDisplay";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -40,7 +43,7 @@ function HabitTracker() {
   const [isEditingDate, setIsEditingDate] = React.useState(false);
   const [newCommitmentDate, setNewCommitmentDate] = React.useState("");
   const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState(false);
-  const [isDateEditModalOpen, setIsDateModalOpen] = React.useState(false);
+  const [isDateModalOpen, setIsDateModalOpen] = React.useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
   const frequencyOptions = [
@@ -69,7 +72,7 @@ function HabitTracker() {
       });
   }
 
-  // useEffect hooks to log when each component mounts
+  // Auth state monitoring
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -79,57 +82,33 @@ function HabitTracker() {
     });
     return () => unsubscribe(); // ✅ Cleanup
   }, []);
-  // After login, Firestore checks if a habit exists for the user. If it exists, it loads the saved habit & frequency. If it doesn’t exist, user continues to enter a new habit
+  // Fetch habit data after authentication
   React.useEffect(() => {
-    if (!user) {
-      console.log("⏳ Waiting for user authentication before checking Firestore...");
-      return; // Prevents Firestore query from running without authentication
-    }
+    if (!user) return;
     
-    console.log("🔄 Checking Firestore for saved habit...");
-    
-    const fetchHabit = async () => {
-      try {
-        // 🔐 Properly filter by authenticated user
-        const q = query(
-          collection(db, "habits"),
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(1)
-        );
+    const loadHabitData = async () => {
+      const result = await fetchUserHabit(user.uid);
+      
+      if (result.success) {
+        const habitData = result.habitData;
         
-        const querySnapshot = await getDocs(q);
-        console.log("Firestore returned:", querySnapshot.docs.length, "documents");
+        // Set retrieved habit data in state
+        setName(habitData.name);
+        setTrackingHabit(habitData.habit);
+        setFrequency(habitData.frequency);
+        setCommitmentDate(habitData.commitmentDate);
+        setFailureConsequence(habitData.failureConsequence);
+        setSuccessConsequence(habitData.successConsequence);
+        setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);
         
-        querySnapshot.docs.forEach((doc, index) => 
-          console.log(`Doc ${index}:`, doc.data(), "(Created at:", doc.data().createdAt, ")")
-        );
-        
-        if (!querySnapshot.empty) {
-          const habitData = querySnapshot.docs[0].data();
-          console.log("✅ Found habit:", habitData);
-
-          // Set retrieved habit data in state
-          setName(habitData.name);
-          setTrackingHabit(habitData.habit);
-          setFrequency(habitData.frequency);
-          setCommitmentDate(habitData.commitmentDate);
-          setFailureConsequence(habitData.failureConsequence);
-          setSuccessConsequence(habitData.successConsequence);
-          setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false)
-          
-          setStep(8); // Move user to habit-tracking UI
-        } else {
-          console.log("🚨 No habit found for user:", user.uid);
-        }
-      } catch (error) {
-        console.error("🚨 Error fetching habit:", error);
+        setStep(8); // Move user to habit-tracking UI
       }
     };
   
-    fetchHabit();
+    loadHabitData();
   }, [user]); // ✅ Ensure effect runs only when `user` state updates
 
+  // Debug logging
   React.useEffect(() => {
     if (habit) console.log("🥅 New habit set:", habit);
   }, [habit]);
@@ -175,71 +154,61 @@ function HabitTracker() {
   }
 
   async function handleSubmit() {
-    if (!user) {
-      console.log("🚨 User not logged in!");
-      return;
-    }
     setIsModalOpen(false);
-    // 🚨 Ensure required fields are not empty before submission
-    if (!name || !habit || !frequency || !commitmentDate || !failureConsequence || !successConsequence) {
-    console.log("🚨 Error: All fields must be filled before saving.");
-    return;
-    }
+    
+    const habitData = {
+      name,
+      habit,
+      trackingHabit: habit, 
+      frequency,
+      commitmentDate,
+      failureConsequence,
+      successConsequence,
+      hasEditedCommitmentDate: false
+    };
 
-    try {
-      const docRef = doc(db, "habits", user.uid);
-      await setDoc(docRef, {
-        userId: user.uid,
-        name: name,
-        habit: habit,
-        trackingHabit: habit, // 🛠️ You can rename trackingHabit later if needed
-        frequency: frequency,
-        commitmentDate: commitmentDate,
-        failureConsequence: failureConsequence,
-        successConsequence: successConsequence,
-        setHasEditedCommitmentDate: false,
-        createdAt: serverTimestamp(),
-      });
-      // ✅ Fetch the document we just saved for verification
-      const savedDoc = await getDoc(docRef);
-      if (savedDoc.exists()) {
-        console.log("🛠️ Verified saved habit:", savedDoc.data());
-      } else {
-        console.log("🚨 Error: Habit document not found after saving.");
-      }
-
+    const result = await saveHabit(user?.uid, habitData);
+    
+    if (result.success) {
       console.log("✅ Habit saved to Firestore:", habit);
-      setTrackingHabit(habit); // ✅ Display the habit on homepage
+      setTrackingHabit(habit);
       setStep(8); // Move user to the habit-tracking homepage
-    } catch (error) {
-      console.error("🚨 Error saving habit:", error);
+    } else {
+      console.error("🚨 Error saving habit:", result.message);
     }
   }
+  async function confirmDateEdit() {
+    const result = await updateCommitmentDate(user?.uid, newCommitmentDate);
     
-
+    if (result.success) {
+      // Update local state
+      setCommitmentDate(newCommitmentDate);
+      setIsEditingDate(false);
+      setHasEditedCommitmentDate(true);
+      setIsDateModalOpen(false); // Close the modal
+    } else {
+      console.error("🚨 Error updating commitment date:", result.message);
+    }
+  }
 
   async function deleteHabit() {
-  if (!user) return;
-
-  try {
-    const docRef = doc(db, "habits", user.uid);
-    await deleteDoc(docRef);
-    console.log("🗑️ Habit deleted! Starting fresh...");
-
-    // Reset state
-    setName("");
-    setHabit("");
-    setTrackingHabit("");
-    setFrequency("");
-    setCommitmentDate("");
-    setFailureConsequence("");
-    setSuccessConsequence("");
-    setHasEditedCommitmentDate(false);
-    setStep(1); // Start from the beginning
-  } catch (error) {
-    console.error("🚨 Error deleting habit:", error);
+    const result = await deleteUserHabit(user?.uid);
+    
+    if (result.success) {
+      // Reset state
+      setName("");
+      setHabit("");
+      setTrackingHabit("");
+      setFrequency("");
+      setCommitmentDate("");
+      setFailureConsequence("");
+      setSuccessConsequence("");
+      setHasEditedCommitmentDate(false);
+      setStep(1); // Start from the beginning
+    } else {
+      console.error("🚨 Error deleting habit:", result.message);
+    }
   }
-}
 
   function handleEditDateClick() {
     if (hasEditedCommitmentDate) {
@@ -249,27 +218,6 @@ function HabitTracker() {
     setIsEditingDate(true);
     setNewCommitmentDate(commitmentDate); // Initialize with current commitment date
   }
-  async function confirmDateEdit() {
-    if (!user || !newCommitmentDate) {
-      console.log("🚨 User not logged in or no new commitment date is selected.");
-      return;
-    }
-      try {
-      const docRef = doc(db, "habits", user.uid);
-      await updateDoc(docRef, {
-      commitmentDate: newCommitmentDate,
-      hasEditedCommitmentDate: true // Mark that the date has been edited
-    });
-    console.log("✅ Commitment date updated to:", newCommitmentDate);
-
-    // Update local state
-    setCommitmentDate(newCommitmentDate);
-    setIsEditingDate(false);
-    setHasEditedCommitmentDate(true); // Mark that the date has been edited
-    setIsDateModalOpen(false); // Close the modal
-  } catch (error) {
-    console.error("🚨 Error updating commitment date:", error);
-  }}
   
   function cancelDateEdit() {
     setIsEditingDate(false);
@@ -278,7 +226,6 @@ function HabitTracker() {
     setHasEditedCommitmentDate(false); // Reset the edited date flag
     console.log("🚨 Date edit cancelled.");
   }
-
 
   return (
     <div>
@@ -289,7 +236,7 @@ function HabitTracker() {
 
           {/* Step 1: Enter Name */}
           {step === 1 && (
-            <NameStep 
+            <NameStep  
               name={name} 
               setName={setName} 
               onNext={() => setStep(2)} 
@@ -308,7 +255,64 @@ function HabitTracker() {
             />
           )}
 
-          {/* Continue with other steps... */}
+          {/* Step 3: Frequency */}
+          {step === 3 && (
+            <FrequencyStep 
+              frequency={frequency} 
+              setFrequency={setFrequency} 
+              frequencyOptions={frequencyOptions}
+              onBack={() => setStep(2)} 
+              onNext={() => setStep(4)} 
+              isValid={isStepValid()} 
+            />
+          )}
+
+          {/* Step 4: Commitment Date */}
+          {step === 4 && (
+            <CommitmentDateStep 
+              commitmentDate={commitmentDate} 
+              setCommitmentDate={setCommitmentDate} 
+              onBack={() => setStep(3)} 
+              onNext={() => setStep(5)} 
+              isValid={isStepValid()} 
+            />
+          )}
+
+          {/* Step 5: Failure Consequence */}
+          {step === 5 && (
+            <FailureConsequenceStep 
+              failureConsequence={failureConsequence} 
+              setFailureConsequence={setFailureConsequence} 
+              onBack={() => setStep(4)} 
+              onNext={() => setStep(6)} 
+              isValid={isStepValid()} 
+            />
+          )}
+
+          {/* Step 6: Success Consequence */}
+          {step === 6 && (
+            <SuccessConsequenceStep 
+              successConsequence={successConsequence} 
+              setSuccessConsequence={setSuccessConsequence} 
+              onBack={() => setStep(5)} 
+              onNext={() => setStep(7)} 
+              isValid={isStepValid()} 
+            />
+          )}
+
+          {/* Step 7: Review */}
+          {step === 7 && (
+            <ReviewStep 
+              name={name}
+              habit={habit}
+              frequency={frequency}
+              commitmentDate={commitmentDate}
+              failureConsequence={failureConsequence}
+              successConsequence={successConsequence}
+              onBack={() => setStep(6)} 
+              onSubmit={() => setIsModalOpen(true)} 
+            />
+          )}
 
           {/* Step 8: Habit Display */}
           {step === 8 && (

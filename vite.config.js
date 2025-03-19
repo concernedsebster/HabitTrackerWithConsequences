@@ -1,12 +1,13 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    allowedHosts: [
-      "0b3ef14f-009e-4888-b1f1-65db8c9f754b-00-1henwoak6enzc.janeway.replit.dev",
-    ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      'src': path.resolve(__dirname, './src')
+    },
   },
-});
+})
