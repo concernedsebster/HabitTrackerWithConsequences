@@ -3,7 +3,7 @@ import {
   auth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-} from "../firebaseConfig";
+} from "../../firebaseConfig.js";
 
 function PhoneAuth({ setIsAuthenticated }) {
   const [phone, setPhone] = React.useState("");

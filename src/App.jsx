@@ -1,6 +1,6 @@
 import React from "react";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth } from "./firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
 // Import service functions
@@ -13,7 +13,7 @@ import {
 
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
-import ConfirmationModal from "./modals/ConfirmationModal.js";
+import ConfirmationModal from "src/modals/ConfirmationModal.jsx";
 import NameStep from "src/components/habitForm/NameStep";
 import HabitStep from "src/components/habitForm/HabitStep";
 import FrequencyStep from "src/components/habitForm/FrequencyStep";
@@ -43,7 +43,7 @@ function HabitTracker() {
   const [isEditingDate, setIsEditingDate] = React.useState(false);
   const [newCommitmentDate, setNewCommitmentDate] = React.useState("");
   const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState(false);
-  const [isDateModalOpen, setIsDateModalOpen] = React.useState(false);
+  const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
   const frequencyOptions = [
@@ -123,6 +123,21 @@ function HabitTracker() {
   }, [frequency]);
 
   React.useEffect(() => {
+    if (commitmentDate)
+      console.log("📅 New commitment date set:", commitmentDate);
+  }, [commitmentDate]);
+
+  React.useEffect(() => {
+    if (failureConsequence)
+      console.log("⚠️ New failure consequence set:", failureConsequence);
+  }, [failureConsequence]);
+
+  React.useEffect(() => {
+    if (successConsequence)
+      console.log("🏆 New success reward set:", successConsequence);
+  }, [successConsequence]);
+
+  React.useEffect(() => {
     if (habit || trackingHabit || frequency)
       console.log(
         "🔄 State changed! Habit:",
@@ -185,7 +200,7 @@ function HabitTracker() {
       setCommitmentDate(newCommitmentDate);
       setIsEditingDate(false);
       setHasEditedCommitmentDate(true);
-      setIsDateModalOpen(false); // Close the modal
+      setIsDateEditModalOpen(false); // Close the modal
     } else {
       console.error("🚨 Error updating commitment date:", result.message);
     }
@@ -221,7 +236,7 @@ function HabitTracker() {
   
   function cancelDateEdit() {
     setIsEditingDate(false);
-    setIsDateModalOpen(false);
+    setIsDateEditModalOpen(false);
     setNewCommitmentDate(""); // Clear the new commitment date
     setHasEditedCommitmentDate(false); // Reset the edited date flag
     console.log("🚨 Date edit cancelled.");
@@ -240,7 +255,7 @@ function HabitTracker() {
               name={name} 
               setName={setName} 
               onNext={() => setStep(2)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -251,7 +266,7 @@ function HabitTracker() {
               setHabit={setHabit} 
               onBack={() => setStep(1)} 
               onNext={() => setStep(3)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -263,7 +278,7 @@ function HabitTracker() {
               frequencyOptions={frequencyOptions}
               onBack={() => setStep(2)} 
               onNext={() => setStep(4)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -274,7 +289,7 @@ function HabitTracker() {
               setCommitmentDate={setCommitmentDate} 
               onBack={() => setStep(3)} 
               onNext={() => setStep(5)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -285,7 +300,7 @@ function HabitTracker() {
               setFailureConsequence={setFailureConsequence} 
               onBack={() => setStep(4)} 
               onNext={() => setStep(6)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -296,7 +311,7 @@ function HabitTracker() {
               setSuccessConsequence={setSuccessConsequence} 
               onBack={() => setStep(5)} 
               onNext={() => setStep(7)} 
-              isValid={isStepValid()} 
+              isValid={isStepValid} 
             />
           )}
 
@@ -310,7 +325,10 @@ function HabitTracker() {
               failureConsequence={failureConsequence}
               successConsequence={successConsequence}
               onBack={() => setStep(6)} 
-              onSubmit={() => setIsModalOpen(true)} 
+              onSubmit={() => setIsModalOpen(true)}
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen} 
+              handleSubmit={handleSubmit}
             />
           )}
 
@@ -332,18 +350,14 @@ function HabitTracker() {
               newCommitmentDate={newCommitmentDate}
               setNewCommitmentDate={setNewCommitmentDate}
               isDateEditModalOpen={isDateEditModalOpen}
+              setIsDateEditModalOpen={setIsDateEditModalOpen}
               confirmDateEdit={confirmDateEdit}
               cancelDateEdit={cancelDateEdit}
               logOut={logOut}
             />
           )}
 
-          <ConfirmationModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onConfirm={handleSubmit}
-            message="⚠️ Your submission is final. You can't edit it unless you start over. Are you sure?"
-          />
+          
         </>
       ) : (
         <PhoneAuth setIsAuthenticated={setIsAuthenticated} />

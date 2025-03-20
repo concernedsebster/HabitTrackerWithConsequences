@@ -1,6 +1,6 @@
 import React from "react"
 
-function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid }) {
+function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid, frequencyOptions }) {
     return (
         <>
               <p>How often do you want to do this?</p>
@@ -9,7 +9,8 @@ function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid }) {
                   <input
                     type="radio"
                     name="habitFrequency"
-                    value={frequency}
+                    value={option}
+                    checked={frequency === option}
                     onChange={(e) => setFrequency(e.target.value)}
                   />
                   {option}

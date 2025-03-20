@@ -1,3 +1,4 @@
+// We may not be using this at all in our code, but it may come in handy later
 import React from "react";
 
 function ConfirmationModal({ isOpen, onClose, onConfirm, message }) {
