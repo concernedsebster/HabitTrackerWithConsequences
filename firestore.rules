@@ -3,12 +3,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /habits/{habitId} {
       // Allow read/delete if the document ID matches the user's UID
-      allow read, delete: if request.auth != null && request.auth.uid == habitId;
+      allow read, delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
       
       // Allow create/update if the user is setting their own ID as the userId field
-      allow create, update: if request.auth != null && 
-                             request.auth.uid == habitId && 
+      allow create, update: if request.auth != null &&  
                              request.resource.data.userId == request.auth.uid;
     }
   }
 }
+

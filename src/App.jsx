@@ -13,6 +13,7 @@ import {
 
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
+import { useFirebaseAuthListener, useFetchHabitData } from "src/hooks/useAuthStatus.js";
 import ConfirmationModal from "src/modals/ConfirmationModal.jsx";
 import NameStep from "src/components/habitForm/NameStep";
 import HabitStep from "src/components/habitForm/HabitStep";
@@ -71,42 +72,20 @@ function HabitTracker() {
         console.error("🚨 Error logging out:", error);
       });
   }
+  // Log user state changes
+  useFirebaseAuthListener(setUser, setIsAuthenticated); // Custom hook to monitor auth state
 
-  // Auth state monitoring
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setIsAuthenticated(true);
-      }
-    });
-    return () => unsubscribe(); // ✅ Cleanup
-  }, []);
-  // Fetch habit data after authentication
-  React.useEffect(() => {
-    if (!user) return;
-    
-    const loadHabitData = async () => {
-      const result = await fetchUserHabit(user.uid);
-      
-      if (result.success) {
-        const habitData = result.habitData;
-        
-        // Set retrieved habit data in state
-        setName(habitData.name);
-        setTrackingHabit(habitData.habit);
-        setFrequency(habitData.frequency);
-        setCommitmentDate(habitData.commitmentDate);
-        setFailureConsequence(habitData.failureConsequence);
-        setSuccessConsequence(habitData.successConsequence);
-        setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);
-        
-        setStep(8); // Move user to habit-tracking UI
-      }
-    };
-  
-    loadHabitData();
-  }, [user]); // ✅ Ensure effect runs only when `user` state updates
+  useFetchHabitData(
+    user,
+    setStep,
+    setName,
+    setTrackingHabit,
+    setFrequency,
+    setCommitmentDate,
+    setFailureConsequence,
+    setSuccessConsequence,
+    setHasEditedCommitmentDate
+  ); // Custom hook to fetch habit data
 
   // Debug logging
   React.useEffect(() => {
