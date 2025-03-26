@@ -1,6 +1,15 @@
 import React from "react"
 
-function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid, frequencyOptions }) {
+type FrequencyStepProps = {
+    frequency: string;
+    setFrequency: (value: string) => void;
+    onBack: () => void;
+    onNext: () => void;
+    isValid: () => boolean;
+    frequencyOptions: string[];
+}
+
+function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid, frequencyOptions }: FrequencyStepProps) {
     return (
         <>
               <p>How often do you want to do this?</p>

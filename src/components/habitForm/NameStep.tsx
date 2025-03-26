@@ -1,6 +1,13 @@
 import React from "react";
 
-function NameStep({ name, setName, onNext, isValid}) {
+type NameStepProps = {
+    name: string;
+    setName: (name: string) => void;
+    onNext: () => void;
+    isValid: () => boolean;
+};
+
+function NameStep({ name, setName, onNext, isValid}: NameStepProps) {
     return (
         <>
             <p>What's your name?</p>
