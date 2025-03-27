@@ -1,5 +1,14 @@
 import React from "react"
-function CommitmentDateStep({ commitmentDate, setCommitmentDate, onBack, onNext, isValid }) {
+
+type commitmentDateStepProps = {
+    commitmentDate: string;
+    setCommitmentDate: (value: string) => void;
+    onBack: () => void;
+    onNext: () => void;
+    isValid: () => boolean;
+}
+
+function CommitmentDateStep({ commitmentDate, setCommitmentDate, onBack, onNext, isValid }: commitmentDateStepProps) {
     return (
         <>
             <p>How long do you want to commit to this habit?</p>

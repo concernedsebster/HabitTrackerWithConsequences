@@ -1,5 +1,13 @@
 import React from "react"
-function SuccessConsequenceStep({ successConsequence, setSuccessConsequence, onBack, onNext, isValid }) {
+type SuccessConsequenceStepProps = {
+    successConsequence: string;
+    setSuccessConsequence: (value: string) => void;
+    onBack: () => void;
+    onNext: () => void;
+    isValid: () => boolean;
+}
+
+function SuccessConsequenceStep({ successConsequence, setSuccessConsequence, onBack, onNext, isValid }: SuccessConsequenceStepProps) {
     return (
         <>
             <p>What reward will you get if you succeed?</p>

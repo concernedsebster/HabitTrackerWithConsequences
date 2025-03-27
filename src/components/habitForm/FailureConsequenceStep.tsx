@@ -1,6 +1,14 @@
 import React from "react"
 
-function FailureConsequenceStep({ failureConsequence, setFailureConsequence, onBack, onNext, isValid }) {
+type FailureConsequenceStepProps = {
+    failureConsequence: string;
+    setFailureConsequence: (value: string) => void;
+    onBack: () => void;
+    onNext: () => void;
+    isValid: () => boolean;
+}
+
+function FailureConsequenceStep({ failureConsequence, setFailureConsequence, onBack, onNext, isValid }: FailureConsequenceStepProps) {
     return (
         <>
             <p>What happens if you fail?</p>
