@@ -14,7 +14,6 @@ import {
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
 import { useFirebaseAuthListener, useFetchHabitData } from "src/hooks/useAuthStatus.js";
-import ConfirmationModal from "src/modals/ConfirmationModal.jsx";
 import NameStep from "src/components/habitForm/NameStep";
 import HabitStep from "src/components/habitForm/HabitStep";
 import FrequencyStep from "src/components/habitForm/FrequencyStep";

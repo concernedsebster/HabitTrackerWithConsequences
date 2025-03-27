@@ -1,6 +1,12 @@
 import React from "react";
 
-function DateEditModal({ isOpen, onClose, onConfirm, message }) {
+type DateEditModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function DateEditModal({ isOpen, onClose, onConfirm }: DateEditModalProps) {
     if (!isOpen) return null;
 
     return (
