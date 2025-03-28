@@ -2,7 +2,7 @@ import { collection, query, where, getDocs, orderBy, limit, doc, setDoc, getDoc,
 import { db } from "../firebaseConfig";
 
 // Fetch user's habit
-export const fetchUserHabit = async (userId) => {
+export const fetchUserHabit = async (userId: string) => {
   if (!userId) {
     console.log("⏳ Waiting for user authentication before checking Firestore...");
     return { 
@@ -42,17 +42,28 @@ export const fetchUserHabit = async (userId) => {
         message: "No habit found" 
       };
     }
-  } catch (error) {
-    console.error("🚨 Error fetching habit:", error);
-    return { 
-      success: false, 
-      message: error.message 
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("🚨 Error fetching habit:", error);
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+    else {
+      return { 
+        success: false, 
+        message: "An unknown error occurred!" 
+      };
+    }
   }
 };
 
 // Save a new habit
-export const saveHabit = async (userId, habitData) => {
+export const saveHabit = async (
+  userId: string | null, 
+  habitData: {name: string, habit: string, frequency: string, commitmentDate: string, failureConsequence: string, successConsequence: string, hasEditedCommitmentDate: boolean},
+) => {
   if (!userId) {
     console.log("🚨 User not logged in!");
     return { 
@@ -95,17 +106,26 @@ export const saveHabit = async (userId, habitData) => {
         message: "Habit document not found after saving" 
       };
     }
-  } catch (error) {
-    console.error("🚨 Error saving habit:", error);
-    return { 
-      success: false, 
-      message: error.message 
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error)
+    {
+        console.error("🚨 Error saving habit:", error);
+        return {
+          success: false,
+          message: error.message
+        };
+    }
+    else {
+      return { 
+        success: false, 
+        message: "An unknown error occurred!"
+      };
+    }
   }
 };
 
 // Update commitment date
-export const updateCommitmentDate = async (userId, newDate) => {
+export const updateCommitmentDate = async (userId: string | null, newDate: string) => {
   if (!userId || !newDate) {
     console.log("🚨 User not logged in or no new commitment date is selected.");
     return { 
@@ -125,17 +145,25 @@ export const updateCommitmentDate = async (userId, newDate) => {
       success: true,
       commitmentDate: newDate
     };
-  } catch (error) {
-    console.error("🚨 Error updating commitment date:", error);
-    return { 
-      success: false, 
-      message: error.message 
-    };
-  }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("🚨 Error updating commitment date:", error);
+      return {
+        success: false,
+        message: error.message
+      };
+    } else {
+      return { 
+        success: false, 
+        message: "An unknown error occurred!"
+      };
+    }}
+    
+    
 };
 
 // Delete a habit
-export const deleteUserHabit = async (userId) => {
+export const deleteUserHabit = async (userId: string | null) => {
   if (!userId) return {
     success: false,
     message: "No user ID provided"
@@ -146,7 +174,7 @@ export const deleteUserHabit = async (userId) => {
     await deleteDoc(docRef);
     console.log("🗑️ Habit deleted! Starting fresh...");
     return { success: true };
-  } catch (error) {
+  } catch (error: any | null) {
     console.error("🚨 Error deleting habit:", error);
     return { 
       success: false, 
