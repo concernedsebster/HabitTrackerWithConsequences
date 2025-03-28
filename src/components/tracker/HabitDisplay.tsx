@@ -1,6 +1,6 @@
 // src/components/habitTracker/HabitDisplay.js
 import React from 'react';
-import DeleteHabitModal from 'src/modals/DeleteHabitModal.jsx';
+import DeleteHabitModal from 'src/ui/modals/DeleteHabitModal.js';
 
 function HabitDisplay({ 
   name, 

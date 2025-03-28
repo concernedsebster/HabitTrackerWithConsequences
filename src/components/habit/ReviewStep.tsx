@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "src/modals/ConfirmationModal";
+import Modal from "src/ui/modals/ConfirmationModal";
 
 type ReviewStepProps = {
     // Habit Summary Values
