@@ -1,5 +1,5 @@
 import React from "react";
-import { signOut } from "firebase/auth";
+import { signOut, User } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -9,19 +9,19 @@ import {
   saveHabit, 
   updateCommitmentDate, 
   deleteUserHabit
-} from "./services/habitService.js";
+} from "src/services/habitService";
 
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
 import { useFirebaseAuthListener, useFetchHabitData } from "src/hooks/useAuthStatus.js";
-import NameStep from "src/components/habitForm/NameStep";
-import HabitStep from "src/components/habitForm/HabitStep";
-import FrequencyStep from "src/components/habitForm/FrequencyStep";
-import CommitmentDateStep from "src/components/habitForm/CommitmentDateStep";
-import FailureConsequenceStep from "src/components/habitForm/FailureConsequenceStep";
-import SuccessConsequenceStep from "src/components/habitForm/SuccessConsequenceStep";
-import ReviewStep from "src/components/habitForm/ReviewStep";
-import HabitDisplay from "src/components/habitTracker/HabitDisplay";
+import NameStep from "src/components/habit/NameStep";
+import HabitStep from "src/components/habit/HabitStep";
+import FrequencyStep from "src/components/habit/FrequencyStep";
+import CommitmentDateStep from "src/components/habit/CommitmentDateStep";
+import FailureConsequenceStep from "src/components/habit/FailureConsequenceStep";
+import SuccessConsequenceStep from "src/components/habit/SuccessConsequenceStep";
+import ReviewStep from "src/components/habit/ReviewStep";
+import HabitDisplay from "src/components/tracker/HabitDisplay";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -29,22 +29,22 @@ function HabitTracker() {
   }, []);
 
   // State declarations
-  const [user, setUser] = React.useState(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [step, setStep] = React.useState(1);
-  const [name, setName] = React.useState("");
-  const [habit, setHabit] = React.useState("");
-  const [trackingHabit, setTrackingHabit] = React.useState("");
-  const [frequency, setFrequency] = React.useState("");
-  const [commitmentDate, setCommitmentDate] = React.useState("");
-  const [failureConsequence, setFailureConsequence] = React.useState("");
-  const [successConsequence, setSuccessConsequence] = React.useState("");
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isEditingDate, setIsEditingDate] = React.useState(false);
-  const [newCommitmentDate, setNewCommitmentDate] = React.useState("");
-  const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState(false);
-  const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [user, setUser] = React.useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const [step, setStep] = React.useState<number>(1);
+  const [name, setName] = React.useState<string>("");
+  const [habit, setHabit] = React.useState<string>("");
+  const [trackingHabit, setTrackingHabit] = React.useState<string>("");
+  const [frequency, setFrequency] = React.useState<string>("");
+  const [commitmentDate, setCommitmentDate] = React.useState<string>("");
+  const [failureConsequence, setFailureConsequence] = React.useState<string>("");
+  const [successConsequence, setSuccessConsequence] = React.useState<string>("");
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [isEditingDate, setIsEditingDate] = React.useState<boolean>(false);
+  const [newCommitmentDate, setNewCommitmentDate] = React.useState<string>("");
+  const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState<boolean>(false);
+  const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -61,7 +61,7 @@ function HabitTracker() {
         // Reset reCAPTCHA
         if (window.recaptchaVerifier) {
           window.recaptchaVerifier.clear(); // 🗑️ Clear reCAPTCHA
-          window.recapthcaVerifier = null; // 🚫 Remove reCAPTCHA reference
+          window.recaptchaVerifier = null; // 🚫 Remove reCAPTCHA reference
         }
 
         setIsAuthenticated(false);
@@ -160,7 +160,7 @@ function HabitTracker() {
       hasEditedCommitmentDate: false
     };
 
-    const result = await saveHabit(user?.uid, habitData);
+    const result = await saveHabit(user?.uid ?? null, habitData);
     
     if (result.success) {
       console.log("✅ Habit saved to Firestore:", habit);
@@ -171,7 +171,7 @@ function HabitTracker() {
     }
   }
   async function confirmDateEdit() {
-    const result = await updateCommitmentDate(user?.uid, newCommitmentDate);
+    const result = await updateCommitmentDate(user?.uid ?? null, newCommitmentDate);
     
     if (result.success) {
       // Update local state
@@ -185,7 +185,7 @@ function HabitTracker() {
   }
 
   async function deleteHabit() {
-    const result = await deleteUserHabit(user?.uid);
+    const result = await deleteUserHabit(user?.uid ?? null);
     
     if (result.success) {
       // Reset state

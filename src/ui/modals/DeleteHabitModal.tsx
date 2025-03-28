@@ -1,6 +1,12 @@
 import React from "react";
 
-function DeleteHabitModal({ isOpen, onClose, onConfirm }) {
+type DeleteHabitModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function DeleteHabitModal({ isOpen, onClose, onConfirm }: DeleteHabitModalProps) {
     if (!isOpen) return null;
     return (
       <div className="modal-overlay">

@@ -1,6 +1,28 @@
-// src/components/habitTracker/HabitDisplay.js
 import React from 'react';
-import DeleteHabitModal from 'src/ui/modals/DeleteHabitModal.js';
+import DeleteHabitModal from 'src/ui/modals/DeleteHabitModal';
+
+type HabitDisplayProps = {
+  name: string;
+  trackingHabit: string;
+  frequency: string;
+  commitmentDate: string;
+  failureConsequence: string;
+  successConsequence: string;
+  isDeleteModalOpen: boolean;
+  setIsDeleteModalOpen: (value: boolean) => void;
+  deleteHabit: () => void;
+  setIsDateEditModalOpen: (value: boolean) => void;
+  hasEditedCommitmentDate: boolean;
+  handleEditDateClick: () => void;
+  isEditingDate: boolean;
+  newCommitmentDate: string;
+  setNewCommitmentDate: (value: string) => void;
+  isDateEditModalOpen: boolean;
+  confirmDateEdit: () => void;
+  cancelDateEdit: () => void;
+  logOut: () => void;
+
+}
 
 function HabitDisplay({ 
   name, 
@@ -22,7 +44,7 @@ function HabitDisplay({
   confirmDateEdit,
   cancelDateEdit,
   logOut
-}) {
+}: HabitDisplayProps) {
   return (
     <>
       <h2>Your Habit Tracker</h2>
@@ -70,13 +92,13 @@ function HabitDisplay({
               min={new Date().toISOString().split("T")[0]}
             />
             <button 
-              onClick={() => setIsDateEditModalOpen(true)}
+              onClick={confirmDateEdit}
               className="save-date-button"
             >
               Save New Date
             </button>
             <button
-              onClick={() => setIsDateEditModalOpen(false)}
+              onClick={cancelDateEdit}
               className="cancel-date-button"
             >
               No, Keep It!

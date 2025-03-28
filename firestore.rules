@@ -1,15 +1,24 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function validateHabit() {
+      return
+        request.resource.data.name is string &&
+        request.resource.data.habit is string &&
+        request.resource.data.frequency is string &&
+        request.resource.data.commitmentDate is string &&
+        request.resource.data.failureConsequence is string &&
+        request.resource.data.successConsequence is string &&
+        request.resource.data.hasEditedCommitmentDate is bool &&
+        request.resource.data.userId == request.auth.uid;
+    }
     match /habits/{habitId} {
       // Allow read/delete if the document ID matches the user's UID
       allow read, delete: if request.auth != null &&
-                    resource.data.userId == request.auth.uid;
+                        resource.data.userId == request.auth.uid;
       
       // Allow create/update if the user is setting their own ID as the userId field
-      allow create, update: if request.auth != null &&  
-                             request.resource.data.userId == request.auth.uid;
+      allow create, update: if request.auth != null && validateHabit();
     }
   }
 }
-

@@ -2,11 +2,11 @@ import React from "react";
 
 type DateEditModalProps = {
   isOpen: boolean;
-  onClose: () => void;
   onConfirm: () => void;
+  cancelDateEdit: () => void;
 }
 
-function DateEditModal({ isOpen, onClose, onConfirm }: DateEditModalProps) {
+function DateEditModal({ isOpen, onConfirm, cancelDateEdit }: DateEditModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -16,10 +16,10 @@ function DateEditModal({ isOpen, onClose, onConfirm }: DateEditModalProps) {
           <p>Are you absolutely sure you want to change your commitment date? You can only do this ONCE.</p>
           <div className="modal-buttons">
             <button onClick={onConfirm}>Yes, change it</button>
-            <button onClick={onClose}>No, keep it</button>
+            <button onClick={cancelDateEdit}>No, keep it</button>
           </div>
         </div>
       </div>  
     );
   }
-  export default DateEditModal;
+export default DateEditModal;
