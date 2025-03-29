@@ -12,7 +12,7 @@ type FrequencyStepProps = {
 function FrequencyStep({ frequency, setFrequency, onBack, onNext, isValid, frequencyOptions }: FrequencyStepProps) {
     return (
         <>
-              <p>How often do you want to do this?</p>any 
+              <p>How often do you want to do this?</p> 
               {frequencyOptions.map((option) => (
                 <label key={option}>
                   <input

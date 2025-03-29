@@ -34,6 +34,7 @@ function HabitTracker() {
   const [step, setStep] = React.useState<number>(1);
   const [name, setName] = React.useState<string>("");
   const [habit, setHabit] = React.useState<string>("");
+  const [isSavingHabit, setIsSavingHabit] = React.useState<boolean>(false);
   const [trackingHabit, setTrackingHabit] = React.useState<string>("");
   const [frequency, setFrequency] = React.useState<string>("");
   const [commitmentDate, setCommitmentDate] = React.useState<string>("");
@@ -41,10 +42,12 @@ function HabitTracker() {
   const [successConsequence, setSuccessConsequence] = React.useState<string>("");
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [isEditingDate, setIsEditingDate] = React.useState<boolean>(false);
+  const [isDateUpdatePending, setIsDateUpdatePending] = React.useState<boolean>(false);
   const [newCommitmentDate, setNewCommitmentDate] = React.useState<string>("");
   const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState<boolean>(false);
   const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
+  const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -147,7 +150,9 @@ function HabitTracker() {
   }
 
   async function handleSubmit() {
-    setIsModalOpen(false);
+    setIsSavingHabit(true);
+    try {
+      setIsModalOpen(false);
     
     const habitData = {
       name,
@@ -158,7 +163,7 @@ function HabitTracker() {
       failureConsequence,
       successConsequence,
       hasEditedCommitmentDate: false
-    };
+    }
 
     const result = await saveHabit(user?.uid ?? null, habitData);
     
@@ -166,11 +171,19 @@ function HabitTracker() {
       console.log("✅ Habit saved to Firestore:", habit);
       setTrackingHabit(habit);
       setStep(8); // Move user to the habit-tracking homepage
-    } else {
-      console.error("🚨 Error saving habit:", result.message);
+    }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("🚨 Error saving habit:", error.message);
+      }
+    }
+    finally {
+      setIsSavingHabit(false);
     }
   }
   async function confirmDateEdit() {
+    setIsDateUpdatePending(true)
+    try {
     const result = await updateCommitmentDate(user?.uid ?? null, newCommitmentDate);
     
     if (result.success) {
@@ -179,12 +192,19 @@ function HabitTracker() {
       setIsEditingDate(false);
       setHasEditedCommitmentDate(true);
       setIsDateEditModalOpen(false); // Close the modal
-    } else {
-      console.error("🚨 Error updating commitment date:", result.message);
+    }} catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("🚨 Error updating commitment date:", error.message)
+      }
+    }  finally {
+      setIsDateUpdatePending(false)
     }
   }
 
   async function deleteHabit() {
+    setIsDeletingHabit(true);
+    
+    try {
     const result = await deleteUserHabit(user?.uid ?? null);
     
     if (result.success) {
@@ -198,8 +218,14 @@ function HabitTracker() {
       setSuccessConsequence("");
       setHasEditedCommitmentDate(false);
       setStep(1); // Start from the beginning
-    } else {
-      console.error("🚨 Error deleting habit:", result.message);
+    }} catch 
+      (error: unknown) {
+        if (error instanceof Error) {
+          console.error("🚨 Error deleting habit:", error.message)
+        }
+      }
+     finally {
+      setIsDeletingHabit(false);
     }
   }
 
