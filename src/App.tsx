@@ -335,11 +335,15 @@ function HabitTracker() {
               isModalOpen={isModalOpen}
               setIsModalOpen={setIsModalOpen} 
               handleSubmit={handleSubmit}
+              isSavingHabit={isSavingHabit}
             />
           )}
 
           {/* Step 8: Habit Display */}
           {step === 8 && (
+            isFetchingHabit ? (
+              <p>Loading habit...</p>
+            ) : (
             <HabitDisplay 
               name={name}
               trackingHabit={trackingHabit}
@@ -361,7 +365,7 @@ function HabitTracker() {
               cancelDateEdit={cancelDateEdit}
               logOut={logOut}
             />
-          )}
+          ))}
 
           
         </>

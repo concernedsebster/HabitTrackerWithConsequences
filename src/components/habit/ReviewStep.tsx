@@ -16,9 +16,10 @@ type ReviewStepProps = {
     isModalOpen: boolean;
     setIsModalOpen: (value: boolean) => void;
     handleSubmit: () => void;
+    isSavingHabit: boolean;
 }
 
-function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit }: ReviewStepProps) {
+function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
     return (
         <>
             <h2>Review Your Habit Plan</h2>
@@ -38,7 +39,7 @@ function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence
                 />
             </div>
             <button onClick={onBack}>Back</button>
-            <button onClick={() => setIsModalOpen(true)}>Track Your One Habit</button>
+            <button disabled={isSavingHabit} onClick={() => setIsModalOpen(true)}>{isSavingHabit ? "Saving..." : "Track Your One Habit"}</button>
         </>
     );
 }
