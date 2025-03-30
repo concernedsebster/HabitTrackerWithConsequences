@@ -5,7 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 // Import service functions
 import { 
-  fetchUserHabit, 
+  getHabitFromFirestore, 
   saveHabit, 
   updateCommitmentDate, 
   deleteUserHabit
@@ -13,7 +13,7 @@ import {
 
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
-import { useFirebaseAuthListener, useFetchHabitData } from "src/hooks/useAuthStatus.js";
+import { useFirebaseAuthListener, useSyncHabitData } from "src/hooks/useAuthStatus.js";
 import NameStep from "src/components/habit/NameStep";
 import HabitStep from "src/components/habit/HabitStep";
 import FrequencyStep from "src/components/habit/FrequencyStep";
@@ -34,6 +34,7 @@ function HabitTracker() {
   const [step, setStep] = React.useState<number>(1);
   const [name, setName] = React.useState<string>("");
   const [habit, setHabit] = React.useState<string>("");
+  const [isFetchingHabit, setIsFetchingHabit] = React.useState<boolean>(false);
   const [isSavingHabit, setIsSavingHabit] = React.useState<boolean>(false);
   const [trackingHabit, setTrackingHabit] = React.useState<string>("");
   const [frequency, setFrequency] = React.useState<string>("");
@@ -77,7 +78,7 @@ function HabitTracker() {
   // Log user state changes
   useFirebaseAuthListener(setUser, setIsAuthenticated); // Custom hook to monitor auth state
 
-  useFetchHabitData(
+  useSyncHabitData(
     user,
     setStep,
     setName,
@@ -86,7 +87,8 @@ function HabitTracker() {
     setCommitmentDate,
     setFailureConsequence,
     setSuccessConsequence,
-    setHasEditedCommitmentDate
+    setHasEditedCommitmentDate,
+    setIsFetchingHabit
   ); // Custom hook to fetch habit data
 
   // Debug logging

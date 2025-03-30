@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import { auth } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import { fetchUserHabit } from "../services/habitService";
+import { getHabitFromFirestore } from "../services/habitService";
 
 export function useFirebaseAuthListener(
   setUser: (user: any | null) => void, 
@@ -29,7 +29,7 @@ export function useFirebaseAuthListener(
 }
 
 // Fetch habit data after authentication
-export function useFetchHabitData(
+export function useSyncHabitData(
   user: { uid: string } | null, 
   setStep: (step: number) => void,
   setName: (name: string) => void, 
@@ -45,7 +45,7 @@ useEffect(() => {
     if (!user) return;
     
     const loadHabitData = async () => {
-      const result = await fetchUserHabit(user.uid);
+      const result = await getHabitFromFirestore(user.uid);
       
       if (result.success && result.habitData) {
         const habitData = result.habitData;

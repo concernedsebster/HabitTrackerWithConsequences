@@ -2,7 +2,7 @@ import { collection, query, where, getDocs, orderBy, limit, doc, setDoc, getDoc,
 import { db } from "../firebaseConfig";
 
 // Fetch user's habit
-export const fetchUserHabit = async (userId: string) => {
+export const getHabitFromFirestore = async (userId: string) => {
   if (!userId) {
     console.log("⏳ Waiting for user authentication before checking Firestore...");
     return { 
