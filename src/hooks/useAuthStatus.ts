@@ -38,13 +38,16 @@ export function useSyncHabitData(
   setCommitmentDate: (value: string) => void,
   setFailureConsequence: (value: string) => void,
   setSuccessConsequence: (value: string) => void,
-  setHasEditedCommitmentDate: (value: boolean) => void
+  setHasEditedCommitmentDate: (value: boolean) => void,
+  setIsFetchingHabit: (value: boolean) => void
 ) {
   // This hook fetches the user's habit data from Firestore after the user is authenticated.
 useEffect(() => {
     if (!user) return;
     
     const loadHabitData = async () => {
+      setIsFetchingHabit(true);
+      try {
       const result = await getHabitFromFirestore(user.uid);
       
       if (result.success && result.habitData) {
@@ -61,8 +64,16 @@ useEffect(() => {
         
         setStep(8); // Move user to habit-tracking UI
       }
+    }
+    catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("🚨 Error fetching habit:", error);
+      }
+    }
+    finally {
+      setIsFetchingHabit(false);
+    }
     };
-  
     loadHabitData();
   }, [user]); // ✅ Ensure effect runs only when `user` state updates
 }

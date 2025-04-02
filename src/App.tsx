@@ -39,7 +39,11 @@ function HabitTracker() {
   const [trackingHabit, setTrackingHabit] = React.useState<string>("");
   const [frequency, setFrequency] = React.useState<string>("");
   const [commitmentDate, setCommitmentDate] = React.useState<string>("");
-  const [failureConsequence, setFailureConsequence] = React.useState<string>("");
+  const [failureConsequenceType, setFailureConsequenceType] = React.useState<"partner" | "app" | null>(null);
+  const [partnerPhone, setPartnerPhone] = React.useState<string>("");
+  const [isInviteSent, setIsInviteSent] = React.useState<boolean>(false);
+  const [hasClickedTextButton, setHasClickedTextButton] = React.useState<boolean>(false);
+  const [penaltyAmount, setPenaltyAmount] = React.useState<number | "">("");
   const [successConsequence, setSuccessConsequence] = React.useState<string>("");
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [isEditingDate, setIsEditingDate] = React.useState<boolean>(false);
@@ -365,7 +369,8 @@ function HabitTracker() {
               cancelDateEdit={cancelDateEdit}
               logOut={logOut}
             />
-          ))}
+          )
+          )}
 
           
         </>
