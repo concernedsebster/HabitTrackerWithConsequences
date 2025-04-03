@@ -39,6 +39,7 @@ function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceT
                 />
             Pay the app if I fail
             </label>
+            {failureConsequenceType && (
             <label>
                 <input
                     type="number"
@@ -50,6 +51,7 @@ function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceT
                 />
             How much do you want to pay if you fail?
             </label>
+            )}
             {failureConsequenceType === "partner" && (
                 <label>
                     <input

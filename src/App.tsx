@@ -87,13 +87,16 @@ function HabitTracker() {
     user,
     setStep,
     setName,
+    setHabit,
     setTrackingHabit,
     setFrequency,
     setCommitmentDate,
     setFailureConsequenceType,
     setSuccessConsequence,
     setHasEditedCommitmentDate,
-    setIsFetchingHabit
+    setIsFetchingHabit,
+    setPartnerPhone,
+    setPenaltyAmount
   ); // Custom hook to fetch habit data
 
   // Debug logging

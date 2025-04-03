@@ -30,17 +30,7 @@ export function useFirebaseAuthListener(
 
 // Fetch habit data after authentication
 export function useSyncHabitData(
-  user: { uid: string } | null, 
-  setStep: (step: number) => void,
-  setName: (name: string) => void, 
-  setTrackingHabit: (value: string) => void,
-  setFrequency: (value: string) => void,
-  setCommitmentDate: (value: string) => void,
-  setFailureConsequenceType: (value: 'partner' | 'app' | null) => void,
-  setSuccessConsequence: (value: string) => void,
-  setHasEditedCommitmentDate: (value: boolean) => void,
-  setIsFetchingHabit: (value: boolean) => void
-) {
+user: { uid: string; } | null, setStep: (step: number) => void, setName: (name: string) => void, setHabit: (value: string) => void, setTrackingHabit: (value: string) => void, setFrequency: (value: string) => void, setCommitmentDate: (value: string) => void, setFailureConsequenceType: (value: 'partner' | 'app' | null) => void, setSuccessConsequence: (value: string) => void, setHasEditedCommitmentDate: (value: boolean) => void, setIsFetchingHabit: (value: boolean) => void, setPartnerPhone: (value: string) => void, setPenaltyAmount: (value: number | null) => void) {
   // This hook fetches the user's habit data from Firestore after the user is authenticated.
 useEffect(() => {
     if (!user) return;
@@ -55,6 +45,7 @@ useEffect(() => {
         
         // Set retrieved habit data in state
         setName(habitData.name);
+        setHabit(habitData.habit);
         setTrackingHabit(habitData.habit);
         setFrequency(habitData.frequency);
         setCommitmentDate(habitData.commitmentDate);
@@ -63,6 +54,18 @@ useEffect(() => {
         setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);
         
         setStep(8); // Move user to habit-tracking UI
+      } else {
+        // 🧼 clear all relevant state to show onboarding again
+        setName('');
+        setHabit('');
+        setFrequency('');
+        setCommitmentDate('');
+        setSuccessConsequence('');
+        setFailureConsequenceType(null);
+        setPenaltyAmount(null);
+        setPartnerPhone('');
+        setHasEditedCommitmentDate(false);
+        setStep(1); // back to start
       }
     }
     catch (error: unknown) {
