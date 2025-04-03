@@ -7,8 +7,10 @@ type ReviewStepProps = {
     habit: string;
     frequency: string;
     commitmentDate: string;
-    failureConsequence: string;
+    failureConsequenceType: 'app' | 'partner' | null;
     successConsequence: string;
+    partnerPhone: string;
+    penaltyAmount: number | '' | null;
     // Navigation Values
     onBack: () => void;
     onSubmit: () => void;
@@ -19,7 +21,7 @@ type ReviewStepProps = {
     isSavingHabit: boolean;
 }
 
-function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
+function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequenceType, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
     return (
         <>
             <h2>Review Your Habit Plan</h2>
@@ -27,7 +29,7 @@ function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence
                 <strong>{name}</strong> is committing to{" "}
                 <strong>{habit}</strong> for <strong>{frequency}</strong>, until{" "}
                 <strong>{commitmentDate}</strong>. If they fail,{" "}
-                <strong>{failureConsequence}</strong> will happen. If they
+                <strong>{failureConsequenceType}</strong> will happen. If they
                 succeed, they will <strong>{successConsequence}</strong>.
             </p>
             <div>

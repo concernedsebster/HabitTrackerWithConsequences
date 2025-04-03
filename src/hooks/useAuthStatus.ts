@@ -36,7 +36,7 @@ export function useSyncHabitData(
   setTrackingHabit: (value: string) => void,
   setFrequency: (value: string) => void,
   setCommitmentDate: (value: string) => void,
-  setFailureConsequence: (value: string) => void,
+  setFailureConsequenceType: (value: 'partner' | 'app' | null) => void,
   setSuccessConsequence: (value: string) => void,
   setHasEditedCommitmentDate: (value: boolean) => void,
   setIsFetchingHabit: (value: boolean) => void
@@ -58,7 +58,7 @@ useEffect(() => {
         setTrackingHabit(habitData.habit);
         setFrequency(habitData.frequency);
         setCommitmentDate(habitData.commitmentDate);
-        setFailureConsequence(habitData.failureConsequence);
+        setFailureConsequenceType(habitData.failureConsequenceType);
         setSuccessConsequence(habitData.successConsequence);
         setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);
         

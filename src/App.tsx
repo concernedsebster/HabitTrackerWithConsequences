@@ -22,6 +22,7 @@ import FailureConsequenceStep from "src/components/habit/FailureConsequenceStep"
 import SuccessConsequenceStep from "src/components/habit/SuccessConsequenceStep";
 import ReviewStep from "src/components/habit/ReviewStep";
 import HabitDisplay from "src/components/tracker/HabitDisplay";
+import { serverTimestamp } from "firebase/firestore";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -43,7 +44,7 @@ function HabitTracker() {
   const [partnerPhone, setPartnerPhone] = React.useState<string>("");
   const [isInviteSent, setIsInviteSent] = React.useState<boolean>(false);
   const [hasClickedTextButton, setHasClickedTextButton] = React.useState<boolean>(false);
-  const [penaltyAmount, setPenaltyAmount] = React.useState<number | "">("");
+  const [penaltyAmount, setPenaltyAmount] = React.useState<number | null | "">(null);
   const [successConsequence, setSuccessConsequence] = React.useState<string>("");
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [isEditingDate, setIsEditingDate] = React.useState<boolean>(false);
@@ -89,7 +90,7 @@ function HabitTracker() {
     setTrackingHabit,
     setFrequency,
     setCommitmentDate,
-    setFailureConsequence,
+    setFailureConsequenceType,
     setSuccessConsequence,
     setHasEditedCommitmentDate,
     setIsFetchingHabit
@@ -115,9 +116,9 @@ function HabitTracker() {
   }, [commitmentDate]);
 
   React.useEffect(() => {
-    if (failureConsequence)
-      console.log("⚠️ New failure consequence set:", failureConsequence);
-  }, [failureConsequence]);
+    if (failureConsequenceType)
+      console.log("⚠️ New failure consequence set:", failureConsequenceType);
+  }, [failureConsequenceType]);
 
   React.useEffect(() => {
     if (successConsequence)
@@ -147,7 +148,7 @@ function HabitTracker() {
       case 4: // Commitment Date Step
         return commitmentDate.trim() !== ""; // Date must be selected
       case 5: // Failure Consequence Step
-        return failureConsequence.trim() !== ""; // Must enter a failure consequence
+        return failureConsequenceType === 'partner' || failureConsequenceType === 'app'; // Must select a failure consequence type
       case 6: // Success Reward Step
         return successConsequence.trim() !== ""; // Must enter a success reward
       default:
@@ -155,20 +156,35 @@ function HabitTracker() {
     }
   }
 
+  function validateFailureConsequence() {
+    if (failureConsequenceType === 'partner') {
+      return typeof penaltyAmount === 'number' && penaltyAmount > 0  && partnerPhone.trim().length > 9 && isInviteSent;
+    }
+    if (failureConsequenceType === 'app') {
+      return typeof penaltyAmount === 'number' && penaltyAmount > 50;  
+    }
+    return false;
+  }
+
   async function handleSubmit() {
     setIsSavingHabit(true);
     try {
       setIsModalOpen(false);
-    
+      
+
     const habitData = {
       name,
       habit,
       trackingHabit: habit, 
       frequency,
       commitmentDate,
-      failureConsequence,
+      failureConsequenceType,
+      penaltyAmount,
+      partnerPhone: partnerPhone || null,
+      isInviteSent,
       successConsequence,
-      hasEditedCommitmentDate: false
+      hasEditedCommitmentDate: false,
+      createdAt: serverTimestamp(),
     }
 
     const result = await saveHabit(user?.uid ?? null, habitData);
@@ -220,7 +236,7 @@ function HabitTracker() {
       setTrackingHabit("");
       setFrequency("");
       setCommitmentDate("");
-      setFailureConsequence("");
+      setFailureConsequenceType(null);
       setSuccessConsequence("");
       setHasEditedCommitmentDate(false);
       setStep(1); // Start from the beginning
@@ -306,11 +322,19 @@ function HabitTracker() {
           {/* Step 5: Failure Consequence */}
           {step === 5 && (
             <FailureConsequenceStep 
-              failureConsequence={failureConsequence} 
-              setFailureConsequence={setFailureConsequence} 
-              onBack={() => setStep(4)} 
-              onNext={() => setStep(6)} 
-              isValid={isStepValid} 
+              failureConsequenceType={failureConsequenceType} 
+              setFailureConsequenceType={setFailureConsequenceType}
+              partnerPhone={partnerPhone}
+              setPartnerPhone={setPartnerPhone}
+              penaltyAmount={penaltyAmount ?? null}
+              setPenaltyAmount={setPenaltyAmount}
+              hasClickedTextButton={hasClickedTextButton}
+              setHasClickedTextButton={setHasClickedTextButton}
+              isInviteSent={isInviteSent}
+              setIsInviteSent={setIsInviteSent} 
+              onBack={() => setStep(4)}
+              onNext={() => setStep(6)}  
+              isValid={validateFailureConsequence} 
             />
           )}
 
@@ -332,7 +356,6 @@ function HabitTracker() {
               habit={habit}
               frequency={frequency}
               commitmentDate={commitmentDate}
-              failureConsequence={failureConsequence}
               successConsequence={successConsequence}
               onBack={() => setStep(6)} 
               onSubmit={() => setIsModalOpen(true)}
@@ -340,6 +363,9 @@ function HabitTracker() {
               setIsModalOpen={setIsModalOpen} 
               handleSubmit={handleSubmit}
               isSavingHabit={isSavingHabit}
+              failureConsequenceType={failureConsequenceType}
+              partnerPhone={partnerPhone}
+              penaltyAmount={penaltyAmount}
             />
           )}
 
@@ -353,8 +379,8 @@ function HabitTracker() {
               trackingHabit={trackingHabit}
               frequency={frequency}
               commitmentDate={commitmentDate}
-              failureConsequence={failureConsequence}
               successConsequence={successConsequence}
+              failureConsequenceType={failureConsequenceType}
               isDeleteModalOpen={isDeleteModalOpen}
               setIsDeleteModalOpen={setIsDeleteModalOpen}
               deleteHabit={deleteHabit}

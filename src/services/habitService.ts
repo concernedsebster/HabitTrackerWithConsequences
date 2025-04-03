@@ -62,7 +62,7 @@ export const getHabitFromFirestore = async (userId: string) => {
 // Save a new habit
 export const saveHabit = async (
   userId: string | null, 
-  habitData: {name: string, habit: string, frequency: string, commitmentDate: string, failureConsequence: string, successConsequence: string, hasEditedCommitmentDate: boolean},
+  habitData: {name: string, habit: string, frequency: string, commitmentDate: string, failureConsequenceType: 'app' | 'partner' | null , successConsequence: string, hasEditedCommitmentDate: boolean},
 ) => {
   if (!userId) {
     console.log("🚨 User not logged in!");
@@ -73,8 +73,8 @@ export const saveHabit = async (
   }
 
   // Ensure required fields are not empty before submission
-  const { name, habit, frequency, commitmentDate, failureConsequence, successConsequence } = habitData;
-  if (!name || !habit || !frequency || !commitmentDate || !failureConsequence || !successConsequence) {
+  const { name, habit, frequency, commitmentDate, failureConsequenceType, successConsequence } = habitData;
+  if (!name || !habit || !frequency || !commitmentDate || !failureConsequenceType || !successConsequence) {
     console.log("🚨 Error: All fields must be filled before saving.");
     return { 
       success: false, 
