@@ -1,10 +1,9 @@
 import React from "react"
+import { getAuth } from "firebase/auth";
 
 type FailureConsequenceStepProps = {
     failureConsequenceType: "partner" | "app" | null;
     setFailureConsequenceType: (value: "partner" | "app" | null) => void;
-    partnerPhone: string;
-    setPartnerPhone: (value: string) => void;
     penaltyAmount: number | "" | null;
     setPenaltyAmount: (value: number | "" | null) => void;
     hasClickedTextButton: boolean;
@@ -17,9 +16,15 @@ type FailureConsequenceStepProps = {
     isValid: () => boolean;
 }
 
-function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceType, partnerPhone, setPartnerPhone, penaltyAmount, setPenaltyAmount, hasClickedTextButton, setHasClickedTextButton, isInviteSent, setIsInviteSent, onBack, onNext, isValid }: FailureConsequenceStepProps) {
+function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceType, penaltyAmount, setPenaltyAmount, hasClickedTextButton, setHasClickedTextButton, isInviteSent, setIsInviteSent, onBack, onNext, isValid }: FailureConsequenceStepProps) {
     const [isAmountConfirmed, setIsAmountConfirmed] = React.useState(false);
-
+    const userId = getAuth().currentUser?.uid
+    if (!userId) {
+        alert("Please log in before sending this invite.");
+        return;
+    }
+    const message = `Hey! I'm committing to a habit using this app called OneHabit. Can you be my accountability partner?\n\nIf I fail at keeping my habit, I'll owe you $${penaltyAmount}!\n\nThe only thing you need to do is confirm your status as my partner at this link, no sign up needed.\n\nhttps://your-app.com/accountability?userId=${userId}`;
+    const encodedMessage = encodeURIComponent(message);
     return (
         <>
             {failureConsequenceType === null && (
@@ -65,31 +70,22 @@ function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceT
 
             {isAmountConfirmed && failureConsequenceType === "partner" && (
                 <>
-                    <label>
-                        <input
-                            type="tel"
-                            value={partnerPhone}
-                            onChange={(e) => setPartnerPhone(e.target.value)}
-                        />
-                    Your friend's phone number
-                    </label>
-                    {partnerPhone.length > 5 && (
                         <div>
                             <p>Text your friend to hold you accountable <br />
                             <strong>They'll need to confirm their status as your accountability partner (no sign up required) before you can begin logging your habit.</strong>
                             </p>
+                            <br />
                             <button onClick={() => {
                                 setHasClickedTextButton(true);
-                                window.open(`sms:&body=Hey, I'm committing to a habit using OneHabit...`, "_blank");
+                                window.open(`sms:&body=${encodedMessage}`, "_blank");
                                 }}>
                                 Text My Friend
                             </button>
-
                             <button disabled={!hasClickedTextButton} onClick={onNext}>
                             I've Sent the Invite
                             </button>
                         </div>
-                    )}
+                    
                 </>
             )}
 
