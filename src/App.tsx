@@ -327,8 +327,6 @@ function HabitTracker() {
             <FailureConsequenceStep 
               failureConsequenceType={failureConsequenceType} 
               setFailureConsequenceType={setFailureConsequenceType}
-              partnerPhone={partnerPhone}
-              setPartnerPhone={setPartnerPhone}
               penaltyAmount={penaltyAmount ?? null}
               setPenaltyAmount={setPenaltyAmount}
               hasClickedTextButton={hasClickedTextButton}

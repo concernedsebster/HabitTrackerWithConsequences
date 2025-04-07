@@ -4,12 +4,19 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from "../../firebaseConfig.js";
+import { ConfirmationResult, User } from "firebase/auth";
 
-function PhoneAuth({ setIsAuthenticated }) {
+type PhoneAuthProps = {
+  setIsAuthenticated: (value: boolean) => void;
+  mode: 'login' | 'partner'
+  userId: string | null
+};
+
+const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId }) => {
   const [phone, setPhone] = React.useState("");
   const [code, setCode] = React.useState("");
-  const [confirmationResult, setConfirmationResult] = React.useState(null);
-  const [user, setUser] = React.useState(null);
+  const [confirmationResult, setConfirmationResult] = React.useState<ConfirmationResult | null>(null);
+  const [user, setUser] = React.useState<User | null>(null);
 
   function setupRecaptcha() {
     if (!window.recaptchaVerifier) {
@@ -19,7 +26,7 @@ function PhoneAuth({ setIsAuthenticated }) {
         "recaptcha-container",
         {
           size: "invisible",
-          callback: (response) => {
+          callback: (response: any) => {
             console.log("✅ Recaptcha verified!", response);
           },
           "expired-callback": () => {
@@ -54,19 +61,23 @@ function PhoneAuth({ setIsAuthenticated }) {
   }
 
   function handleVerifyCode() {
-    if (confirmationResult) {
-      confirmationResult
-        .confirm(code)
-        .then((result) => {
-          setUser(result.user);
-          console.log("✅ Phone authentication successful!", result.user);
-          setIsAuthenticated(true);
-        })
-        .catch((error) =>
-          console.error("Phone aunthentication failed:", error),
-        );
+    if (mode === "partner") {
+      //code
+    } else (confirmationResult) {
+        confirmationResult
+          .confirm(code)
+          .then((result) => {
+            setUser(result.user);
+            console.log("✅ Phone authentication successful!", result.user);
+            setIsAuthenticated(true);
+          })
+          .catch((error) =>
+            console.error("Phone aunthentication failed:", error),
+          );
+      }
     }
-  }
+    }
+    
 
   return (
     <div>
