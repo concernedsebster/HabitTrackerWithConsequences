@@ -23,7 +23,7 @@ function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceT
         alert("Please log in before sending this invite.");
         return;
     }
-    const message = `Hey! I'm committing to a habit using this app called OneHabit. Can you be my accountability partner?\n\nIf I fail at keeping my habit, I'll owe you $${penaltyAmount}!\n\nThe only thing you need to do is confirm your status as my partner at this link, no sign up needed.\n\nhttps://your-app.com/accountability?userId=${userId}`;
+    const message = `Hey! I'm committing to a habit using this app called OneHabit. Can you be my accountability partner?\n\nIf I fail at keeping my habit, I'll owe you $${penaltyAmount}!\n\nThe only thing you need to do is confirm your status as my partner at this link, no sign up needed.\n\nhttp://localhost:5173/accountability?userId=${userId}`;
     const encodedMessage = encodeURIComponent(message);
     return (
         <>

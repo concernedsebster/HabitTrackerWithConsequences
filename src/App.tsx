@@ -2,6 +2,7 @@ import React from "react";
 import { signOut, User } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import { Routes, Route } from "react-router-dom";
 
 // Import service functions
 import { 
@@ -23,6 +24,7 @@ import SuccessConsequenceStep from "src/components/habit/SuccessConsequenceStep"
 import ReviewStep from "src/components/habit/ReviewStep";
 import HabitDisplay from "src/components/tracker/HabitDisplay";
 import { serverTimestamp } from "firebase/firestore";
+import { AccountabilityPartnerPage } from "src/AccountabilityPartnerPage"
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -273,7 +275,10 @@ function HabitTracker() {
 
   return (
     <div>
-      {isAuthenticated ? (
+      <Routes>
+        <Route path="/accountability" element={<AccountabilityPartnerPage />} />
+        <Route path ="*" element={
+      isAuthenticated ? (
         <>
           <h1>✨One Habit✨</h1>
           <button onClick={logOut}>Log Out</button>
@@ -402,8 +407,14 @@ function HabitTracker() {
           
         </>
       ) : (
-        <PhoneAuth setIsAuthenticated={setIsAuthenticated} />
+        <PhoneAuth 
+          setIsAuthenticated={setIsAuthenticated} 
+          mode="login" 
+          userId={user?.uid ?? null} 
+        />
       )}
+      />
+      </Routes>
     </div>
   );
 }

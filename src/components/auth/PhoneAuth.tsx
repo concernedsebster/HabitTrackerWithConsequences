@@ -5,6 +5,7 @@ import {
   signInWithPhoneNumber,
 } from "../../firebaseConfig.js";
 import { ConfirmationResult, User } from "firebase/auth";
+import { doc, updateDoc, serverTimestamp, getFirestore } from "firebase/firestore";
 
 type PhoneAuthProps = {
   setIsAuthenticated: (value: boolean) => void;
@@ -14,6 +15,7 @@ type PhoneAuthProps = {
 
 const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId }) => {
   const [phone, setPhone] = React.useState("");
+  const [partnerPhoneInput, setPartnerPhoneInput] = useState("");
   const [code, setCode] = React.useState("");
   const [confirmationResult, setConfirmationResult] = React.useState<ConfirmationResult | null>(null);
   const [user, setUser] = React.useState<User | null>(null);
@@ -60,24 +62,31 @@ const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId 
       });
   }
 
-  function handleVerifyCode() {
-    if (mode === "partner") {
-      //code
-    } else (confirmationResult) {
-        confirmationResult
-          .confirm(code)
-          .then((result) => {
-            setUser(result.user);
-            console.log("✅ Phone authentication successful!", result.user);
-            setIsAuthenticated(true);
-          })
-          .catch((error) =>
-            console.error("Phone aunthentication failed:", error),
-          );
+  async function handleVerifyCode() {
+    if (!confirmationResult) return;
+    try {
+      const result = await confirmationResult.confirm(code);
+      const verifiedUser = result.user;
+      setUser(verifiedUser);
+
+      if (mode === "partner" && userId) {
+        const firestore = getFirestore();
+        const userDocRef = doc(firestore, "users", userId);
+        await updateDoc(userDocRef, {
+          accountability: {
+            partnerPhone: partnerPhoneInput,
+            partnerIsVerified: true,
+            partnerVerifiedAt: serverTimestamp()
+          }
+        });
+        console.log("✅ Partner verification saved to Firestore");
       }
+      setIsAuthenticated(true);
+      console.log("✅ Phone authentication successful!", verifiedUser);
+    } catch (error) {
+      console.error("Phone authentication failed:", error);
     }
-    }
-    
+  }
 
   return (
     <div>
@@ -86,8 +95,11 @@ const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId 
         <input
           type="tel"
           placeholder="Enter your phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          value={mode === "login" ? phone : partnerPhoneInput}
+          onChange={(e) => {
+            const val = e.target.value;
+            mode === "login" ? setPhone(val) : setPartnerPhoneInput(val);
+          }}
         />
         <button onClick={handleSendCode}>Send Code</button>
 

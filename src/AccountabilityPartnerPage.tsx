@@ -2,7 +2,7 @@ import React from "react";
 import {useSearchParams} from "react-router-dom"
 import PhoneAuth from "./components/auth/PhoneAuth";
 
-function AccountabilityPartnerPage() {
+export function AccountabilityPartnerPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const userId = searchParams.get("userId");
 
