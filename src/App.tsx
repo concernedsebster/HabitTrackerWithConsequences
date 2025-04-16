@@ -338,6 +338,7 @@ function HabitTracker() {
               setHasClickedTextButton={setHasClickedTextButton}
               isInviteSent={isInviteSent}
               setIsInviteSent={setIsInviteSent} 
+              name={name}
               onBack={() => setStep(4)}
               onNext={() => setStep(6)}  
               isValid={validateFailureConsequence} 
@@ -387,6 +388,7 @@ function HabitTracker() {
               commitmentDate={commitmentDate}
               successConsequence={successConsequence}
               failureConsequenceType={failureConsequenceType}
+              penaltyAmount={penaltyAmount}
               isDeleteModalOpen={isDeleteModalOpen}
               setIsDeleteModalOpen={setIsDeleteModalOpen}
               deleteHabit={deleteHabit}

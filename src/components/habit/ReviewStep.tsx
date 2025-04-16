@@ -21,17 +21,17 @@ type ReviewStepProps = {
     isSavingHabit: boolean;
 }
 
-function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequenceType, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
+function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequenceType, penaltyAmount, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
     return (
         <>
             <h2>Review Your Habit Plan</h2>
-            <p>
-                <strong>{name}</strong> is committing to{" "}
-                <strong>{habit}</strong> for <strong>{frequency}</strong>, until{" "}
-                <strong>{commitmentDate}</strong>. If they fail,{" "}
-                <strong>{failureConsequenceType}</strong> will happen. If they
-                succeed, they will <strong>{successConsequence}</strong>.
-            </p>
+            <ul>
+                <li><strong>Your habit:</strong> {habit}</li>
+                 <li><strong>Frequency:</strong> {frequency}</li>
+                <li><strong>Until:</strong> {commitmentDate}</li> 
+                <li><strong>Failure consequence:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}` : "Pay the app ${penaltyAmount}" }</li>
+                <li><strong>Reward if successful:</strong> {successConsequence}</li>
+            </ul>
             <div>
                 <Modal
                     isOpen={isModalOpen}
