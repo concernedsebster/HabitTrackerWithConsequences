@@ -29,15 +29,16 @@ function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence
                 <li><strong>Your habit:</strong> {habit}</li>
                  <li><strong>Frequency:</strong> {frequency}</li>
                 <li><strong>Until:</strong> {commitmentDate}</li> 
-                <li><strong>Failure consequence:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}` : "Pay the app ${penaltyAmount}" }</li>
+                <li><strong>Consequence if you fail:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}.` : "Pay the app ${penaltyAmount}" }</li>
                 <li><strong>Reward if successful:</strong> {successConsequence}</li>
             </ul>
+            <h3>⚠️You get one chance to fail without consequences. After that, you'll have to pay up!⚠️</h3>
             <div>
                 <Modal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onConfirm={handleSubmit}
-                    message="⚠️ Your submission is final. You can't edit it unless you start over. Are you sure?"
+                    message="⚠️ Your submission is final. You won't be able to edit it. Are you sure?"
                 />
             </div>
             <button onClick={onBack}>Back</button>

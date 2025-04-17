@@ -25,6 +25,7 @@ import ReviewStep from "src/components/habit/ReviewStep";
 import HabitDisplay from "src/components/tracker/HabitDisplay";
 import { serverTimestamp } from "firebase/firestore";
 import { AccountabilityPartnerPage } from "src/AccountabilityPartnerPage"
+import HabitCheckIn from "src/components/habit/HabitCheckIn";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -57,6 +58,7 @@ function HabitTracker() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
   const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
   const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
+  const [hasFailedBefore, setHasFailedBefore] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -95,6 +97,7 @@ function HabitTracker() {
     setFrequency,
     setCommitmentDate,
     setFailureConsequenceType,
+    setPartnerIsVerified,
     setSuccessConsequence,
     setHasEditedCommitmentDate,
     setIsFetchingHabit,
@@ -382,6 +385,7 @@ function HabitTracker() {
             isFetchingHabit ? (
               <p>Loading habit...</p>
             ) : (
+            <>
             <HabitDisplay 
               name={name}
               trackingHabit={trackingHabit}
@@ -405,6 +409,17 @@ function HabitTracker() {
               cancelDateEdit={cancelDateEdit}
               logOut={logOut}
             />
+            {habit && <HabitCheckIn 
+            habit={habit}
+            successConsequence={successConsequence}
+            penaltyAmount={penaltyAmount}
+            failureConsequenceType={failureConsequenceType}
+            partnerIsVerified={partnerIsVerified}
+            hasFailedBefore={hasFailedBefore}
+
+            
+            />}
+            </>
           )
           )}
 
