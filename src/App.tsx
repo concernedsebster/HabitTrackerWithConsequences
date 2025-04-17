@@ -56,6 +56,7 @@ function HabitTracker() {
   const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
   const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
+  const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
 
   const frequencyOptions = [
     "Everyday",
@@ -388,6 +389,7 @@ function HabitTracker() {
               commitmentDate={commitmentDate}
               successConsequence={successConsequence}
               failureConsequenceType={failureConsequenceType}
+              partnerIsVerified={partnerIsVerified}
               penaltyAmount={penaltyAmount}
               isDeleteModalOpen={isDeleteModalOpen}
               setIsDeleteModalOpen={setIsDeleteModalOpen}

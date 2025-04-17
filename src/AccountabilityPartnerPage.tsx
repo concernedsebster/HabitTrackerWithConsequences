@@ -1,7 +1,6 @@
 import React, { isValidElement, useEffect } from "react";
 import {useSearchParams} from "react-router-dom"
 import PhoneAuth from "./components/auth/PhoneAuth";
-import { getFirestore, doc, getDoc, Firestore } from "firebase/firestore";
 
 export function AccountabilityPartnerPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -9,12 +8,7 @@ export function AccountabilityPartnerPage() {
     const penaltyAmount = searchParams.get("penaltyAmount");
     const userId = searchParams.get("userId");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
-
-
-
         
-        
-
     return (
         <main>
             {(userId && name && penaltyAmount) ? (

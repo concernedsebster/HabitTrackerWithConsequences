@@ -7,7 +7,7 @@ service cloud.firestore {
         request.resource.data.habit is string &&
         request.resource.data.frequency is string &&
         request.resource.data.commitmentDate is string &&
-        request.resource.data.failureConsequence is string &&
+        request.resource.data.failureConsequenceType is string &&
         request.resource.data.successConsequence is string &&
         request.resource.data.hasEditedCommitmentDate is bool &&
         request.resource.data.userId == request.auth.uid;

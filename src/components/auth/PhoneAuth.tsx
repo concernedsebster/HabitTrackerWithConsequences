@@ -90,7 +90,7 @@ const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId 
 
   return (
     <div>
-      <h1>Verify your Phone Number</h1>
+      {(mode === 'login') ? <h1>Login</h1> : <h3>Confirm your status as an accountability partner</h3>}
       <>
         <input
           type="tel"
@@ -102,6 +102,7 @@ const PhoneAuth: React.FC<PhoneAuthProps> = ({ setIsAuthenticated, mode, userId 
           }}
         />
         <button onClick={handleSendCode}>Send Code</button>
+        {(mode === 'partner') && <p>Don't worry, we won't spam you. We'll only text you if your friend succeeds or fails at their new habit.</p>}
 
         <div id="recaptcha-container"></div>
 

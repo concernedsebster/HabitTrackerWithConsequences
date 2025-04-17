@@ -6,7 +6,9 @@ type HabitDisplayProps = {
   trackingHabit: string;
   frequency: string;
   commitmentDate: string;
-  failureConsequence: string;
+  failureConsequenceType: 'app' | 'partner' | null;
+  partnerIsVerified: null | boolean;
+  penaltyAmount: number | '' | null
   successConsequence: string;
   isDeleteModalOpen: boolean;
   setIsDeleteModalOpen: (value: boolean) => void;
@@ -29,7 +31,9 @@ function HabitDisplay({
   trackingHabit, 
   frequency, 
   commitmentDate,
-  failureConsequence,
+  failureConsequenceType,
+  partnerIsVerified,
+  penaltyAmount,
   successConsequence,
   isDeleteModalOpen,
   setIsDeleteModalOpen,
@@ -49,7 +53,7 @@ function HabitDisplay({
     <>
       <h2>Your Habit Tracker</h2>
       <p><strong>{name}</strong> is tracking <strong>{trackingHabit}</strong> with a frequency of <strong>{frequency}</strong>, until <strong>{commitmentDate}</strong>.</p>
-      <p>If you fail, <strong>{failureConsequence}</strong> happens. If you succeed, <strong>{successConsequence}</strong> happens!</p>
+      <p>If you fail, <strong>you need to pay your friend or the app money</strong>. If you succeed, <strong>{successConsequence}</strong> happens!</p>
       <button onClick={logOut}>Log Out</button>
       <button onClick={() => setIsDeleteModalOpen(true)}>Reset & Start Over</button>
       
