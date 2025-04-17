@@ -1,49 +1,60 @@
 import React from "react";
 import DeleteHabitModal from "src/ui/modals/DeleteHabitModal";
+import FailureModal from "src/ui/modals/FailureModal";
+import { doc, updateDoc, getFirestore } from "firebase/firestore";
+
 
 type HabitCheckInProps = {
     habit: string;
+    deleteHabit: () => void;
+    userId: string | null;
     successConsequence: string;
     penaltyAmount: number | "" | null;
     failureConsequenceType: "partner" | "app" | null;
     partnerIsVerified: boolean | null;
     hasFailedBefore: boolean;
-
 }
 
-type failureModalProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    hasFailedBefore: boolean;
-}
-
-function failureModal({ isOpen, onClose, onConfirm, hasFailedBefore}: failureModalProps) {
-    if (!isOpen) return null;
-    return  (
-        <div className="failure-modal-overlay">
-            <div className="failure-modal-content">
-                <h3>Confirm Failure</h3>
-                {hasFailedBefore ? <p>You've used up your one free failure. Now you need to pay the consequence.</p> : <p>This is your one and only chance at declaring failure without consequences. Are you sure?</p>}
-                <div className="failure-modal-buttons">
-                    <button onClick={onConfirm}>💀Declare FailureFailure💀</button>
-                    <button onClick={onClose}>Nevermind</button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export default function HabitCheckIn({habit, successConsequence, penaltyAmount, failureConsequenceType, partnerIsVerified, hasFailedBefore}: HabitCheckInProps) {
-    return (
+export default function HabitCheckIn({habit, deleteHabit, userId, successConsequence, penaltyAmount, failureConsequenceType, partnerIsVerified, hasFailedBefore}: HabitCheckInProps) {
+    
+    const [isFailureModalOpen, setIsFailureModalOpen] = React.useState(false);
+   
+    function handleSuccess() {
+            // show success modal, update Firestore
+    }
+    async function handleFailureConfirm() {
+        console.log("hasFailedBefore:", hasFailedBefore);
+        if (!hasFailedBefore) {
+            const firestore = getFirestore();
+            if (!userId) {
+                console.error("Missing userId. Cannot update hasFailedBefore in Firestore.");
+                return;
+            }
+            const docRef = doc(firestore, "habits", userId);
+            await updateDoc(docRef, {hasFailedBefore: true});
+            deleteHabit();
+        } else {
+            // proceed with consequence flow (modal or redirect based on failureConsequenceType)
+        }
         
+    }
+    return (
+    <>
         <div>
         <h1>Habit Check In</h1>
         <h3>{habit}</h3>
         <p>Did you do it?</p>
-        <button>Yes</button>
-        <button onClick={failureModal}>No</button>
+        <button onClick={handleSuccess}>Yes</button>
+        <button onClick={()=>setIsFailureModalOpen(true)}>No</button>
         </div>
+        
+        <FailureModal
+            isOpen={isFailureModalOpen}
+            onClose={() => setIsFailureModalOpen(false)}
+            onConfirm={handleFailureConfirm}
+            hasFailedBefore={hasFailedBefore}
+        />
+    </>
         
     )
 }

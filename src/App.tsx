@@ -410,6 +410,7 @@ function HabitTracker() {
               logOut={logOut}
             />
             {habit && <HabitCheckIn 
+            userId={user?.uid ?? null}
             habit={habit}
             successConsequence={successConsequence}
             penaltyAmount={penaltyAmount}
