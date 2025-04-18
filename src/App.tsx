@@ -102,7 +102,8 @@ function HabitTracker() {
     setHasEditedCommitmentDate,
     setIsFetchingHabit,
     setPartnerPhone,
-    setPenaltyAmount
+    setPenaltyAmount,
+    setHasFailedBefore,
   ); // Custom hook to fetch habit data
 
   // Debug logging
@@ -412,6 +413,7 @@ function HabitTracker() {
             {habit && <HabitCheckIn 
             userId={user?.uid ?? null}
             habit={habit}
+            deleteHabit={deleteHabit}
             successConsequence={successConsequence}
             penaltyAmount={penaltyAmount}
             failureConsequenceType={failureConsequenceType}

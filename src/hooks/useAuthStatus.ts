@@ -30,7 +30,7 @@ export function useFirebaseAuthListener(
 
 // Fetch habit data after authentication
 export function useSyncHabitData(
-user: { uid: string; } | null, setStep: (step: number) => void, setName: (name: string) => void, setHabit: (value: string) => void, setTrackingHabit: (value: string) => void, setFrequency: (value: string) => void, setCommitmentDate: (value: string) => void, setFailureConsequenceType: (value: 'partner' | 'app' | null) => void, setPartnerIsVerified: (value: boolean | null) => void, setSuccessConsequence: (value: string) => void, setHasEditedCommitmentDate: (value: boolean) => void, setIsFetchingHabit: (value: boolean) => void, setPartnerPhone: (value: string) => void, setPenaltyAmount: (value: number | null) => void) {
+user: { uid: string; } | null, setStep: (step: number) => void, setName: (name: string) => void, setHabit: (value: string) => void, setTrackingHabit: (value: string) => void, setFrequency: (value: string) => void, setCommitmentDate: (value: string) => void, setFailureConsequenceType: (value: 'partner' | 'app' | null) => void, setPartnerIsVerified: (value: boolean | null) => void, setSuccessConsequence: (value: string) => void, setHasEditedCommitmentDate: (value: boolean) => void, setIsFetchingHabit: (value: boolean) => void, setPartnerPhone: (value: string) => void, setPenaltyAmount: (value: number | null) => void, setHasFailedBefore: (value: boolean) => void) {
   // This hook fetches the user's habit data from Firestore after the user is authenticated.
 useEffect(() => {
     if (!user) return;
@@ -50,6 +50,8 @@ useEffect(() => {
         setFrequency(habitData.frequency);
         setCommitmentDate(habitData.commitmentDate);
         setFailureConsequenceType(habitData.failureConsequenceType);
+        setPenaltyAmount(habitData.penaltyAmount);
+        setHasFailedBefore(habitData.setHasFailedBefore || false);
         setPartnerIsVerified(habitData.partnerIsVerified)
         setSuccessConsequence(habitData.successConsequence);
         setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);

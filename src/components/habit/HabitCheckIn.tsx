@@ -18,6 +18,7 @@ type HabitCheckInProps = {
 export default function HabitCheckIn({habit, deleteHabit, userId, successConsequence, penaltyAmount, failureConsequenceType, partnerIsVerified, hasFailedBefore}: HabitCheckInProps) {
     
     const [isFailureModalOpen, setIsFailureModalOpen] = React.useState(false);
+    console.log("Penalty Amount in HabitCheckIn:", penaltyAmount)
    
     function handleSuccess() {
             // show success modal, update Firestore
@@ -53,6 +54,8 @@ export default function HabitCheckIn({habit, deleteHabit, userId, successConsequ
             onClose={() => setIsFailureModalOpen(false)}
             onConfirm={handleFailureConfirm}
             hasFailedBefore={hasFailedBefore}
+            penaltyAmount={penaltyAmount}
+            failureConsequenceType={failureConsequenceType}
         />
     </>
         
