@@ -62,7 +62,18 @@ export const getHabitFromFirestore = async (userId: string) => {
 // Save a new habit
 export const saveHabit = async (
   userId: string | null, 
-  habitData: {name: string, habit: string, frequency: string, commitmentDate: string, failureConsequenceType: 'app' | 'partner' | null , successConsequence: string, hasEditedCommitmentDate: boolean},
+  habitData: {
+    name: string, 
+    habit: string, 
+    frequency: string, 
+    commitmentDate: string, 
+    failureConsequenceType: 'app' | 'partner' | null , 
+    successConsequence: string, 
+    hasEditedCommitmentDate: boolean,
+    penaltyAmount: number,
+    partnerIsVerified: boolean,
+    hasFailedBefore: boolean
+  },
 ) => {
   if (!userId) {
     console.log("🚨 User not logged in!");
@@ -84,12 +95,24 @@ export const saveHabit = async (
 
   try {
     const docRef = doc(db, "habits", userId);
+    console.log("📝 Saving habit payload:", {
+      userId,
+      ...habitData
+    });
     await setDoc(docRef, {
       userId,
-      ...habitData,
-      hasEditedCommitmentDate: habitData.hasEditedCommitmentDate || false,
+      name: habitData.name,
+      habit: habitData.habit,
+      frequency: habitData.frequency,
+      commitmentDate: habitData.commitmentDate,
+      failureConsequenceType: habitData.failureConsequenceType,
+      successConsequence: habitData.successConsequence,
+      hasEditedCommitmentDate: habitData.hasEditedCommitmentDate ?? false,
+      hasFailedBefore: habitData.hasFailedBefore ?? false,
+      penaltyAmount: habitData.penaltyAmount ?? 0,
+      partnerIsVerified: habitData.partnerIsVerified ?? false,
       createdAt: serverTimestamp(),
-    });
+});
     
     // Fetch the document we just saved for verification
     const savedDoc = await getDoc(docRef);

@@ -1,7 +1,9 @@
 import React from "react";
+import { NewHabitPayload } from "src/types";
 import { signOut, User } from "firebase/auth";
-import { auth } from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { Routes, Route } from "react-router-dom";
 
 // Import service functions
@@ -182,20 +184,18 @@ function HabitTracker() {
       setIsModalOpen(false);
       
 
-    const habitData = {
+    const habitData: NewHabitPayload = {
       name,
       habit,
-      trackingHabit: habit, 
       frequency,
       commitmentDate,
-      failureConsequenceType,
-      penaltyAmount,
-      partnerPhone: partnerPhone || null,
-      isInviteSent,
+      failureConsequenceType: failureConsequenceType as "partner" | "app",
       successConsequence,
       hasEditedCommitmentDate: false,
-      createdAt: serverTimestamp(),
-    }
+      hasFailedBefore: false,
+      penaltyAmount: penaltyAmount as number,
+      partnerIsVerified: partnerIsVerified ?? false,
+    };
 
     const result = await saveHabit(user?.uid ?? null, habitData);
     
@@ -234,12 +234,22 @@ function HabitTracker() {
   }
 
   async function deleteHabit() {
-    setIsDeletingHabit(true);
-    
-    try {
-    const result = await deleteUserHabit(user?.uid ?? null);
-    
-    if (result.success) {
+  setIsDeletingHabit(true);
+
+  try {
+    const userId = user?.uid ?? null;
+    if (!userId) {
+      console.error("No user found! Unable to delete habit.");
+      return;
+    }
+
+    const docRef = doc(db, "habits", userId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      await deleteDoc(docRef);
+      console.log("🗑️ Habit deleted successfully");
+
       // Reset state
       setName("");
       setHabit("");
@@ -250,16 +260,17 @@ function HabitTracker() {
       setSuccessConsequence("");
       setHasEditedCommitmentDate(false);
       setStep(1); // Start from the beginning
-    }} catch 
-      (error: unknown) {
-        if (error instanceof Error) {
-          console.error("🚨 Error deleting habit:", error.message)
-        }
-      }
-     finally {
-      setIsDeletingHabit(false);
+    } else {
+      console.warn("⚠️ No habit found to delete!");
     }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("🚨 Error deleting habit:", error.message);
+    }
+  } finally {
+    setIsDeletingHabit(false);
   }
+}
 
   function handleEditDateClick() {
     if (hasEditedCommitmentDate) {
@@ -389,6 +400,7 @@ function HabitTracker() {
             <>
             <HabitDisplay 
               name={name}
+              habit={habit}
               trackingHabit={trackingHabit}
               frequency={frequency}
               commitmentDate={commitmentDate}

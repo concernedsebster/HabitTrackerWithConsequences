@@ -3,6 +3,7 @@ import DeleteHabitModal from 'src/ui/modals/DeleteHabitModal';
 
 type HabitDisplayProps = {
   name: string;
+  habit: string;
   trackingHabit: string;
   frequency: string;
   commitmentDate: string;
@@ -28,6 +29,7 @@ type HabitDisplayProps = {
 
 function HabitDisplay({ 
   name, 
+  habit,
   trackingHabit, 
   frequency, 
   commitmentDate,
@@ -51,9 +53,14 @@ function HabitDisplay({
 }: HabitDisplayProps) {
   return (
     <>
-      <h2>Your Habit Tracker</h2>
-      <p><strong>{name}</strong> is tracking <strong>{trackingHabit}</strong> with a frequency of <strong>{frequency}</strong>, until <strong>{commitmentDate}</strong>.</p>
-      <p>If you fail, <strong>you need to pay your friend or the app money</strong>. If you succeed, <strong>{successConsequence}</strong> happens!</p>
+      <h2>Habit Details</h2>
+        <ul>
+            <li><strong>Habit:</strong> {habit}</li>
+              <li><strong>Frequency:</strong> {frequency}</li>
+            <li><strong>Until:</strong> {commitmentDate}</li> 
+            <li><strong>Consequence if you fail:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}.` : "Pay the app ${penaltyAmount}" }</li>
+            <li><strong>Reward if successful:</strong> {successConsequence}</li>
+        </ul>
       <button onClick={logOut}>Log Out</button>
       <button onClick={() => setIsDeleteModalOpen(true)}>Reset & Start Over</button>
       

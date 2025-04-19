@@ -35,7 +35,8 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefo
                     {failureConsequenceType === "partner" ? (
                       <>
                         <p>We’ve notified your accountability partner that you owe them ${penaltyAmount}</p>
-                        <button onClick={onConfirm}>I'll Pay Them & Try Again</button>
+                        <button onClick={onConfirm}>Start a New Habit</button>
+                        <button onClick={placeholder}>Restart Current Habit</button>
                       </>
                     ) : (
                       <>
