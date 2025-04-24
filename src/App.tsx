@@ -431,6 +431,9 @@ function HabitTracker() {
             failureConsequenceType={failureConsequenceType}
             partnerIsVerified={partnerIsVerified}
             hasFailedBefore={hasFailedBefore}
+            setStep={setStep}
+            setHasFailedBefore={setHasFailedBefore}
+            setPartnerIsVerified={setPartnerIsVerified}
 
             
             />}

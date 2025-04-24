@@ -8,9 +8,10 @@ type failureModalProps = {
     hasFailedBefore: boolean;
     penaltyAmount: number | "" | null;
     failureConsequenceType: "partner" | "app" | null;
+    restartSameHabit: () => void;
 }
 
-export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefore, penaltyAmount, failureConsequenceType}: failureModalProps) {
+export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefore, penaltyAmount, failureConsequenceType, restartSameHabit}: failureModalProps) {
     const [step, setStep] = React.useState<"confirm" | "consequence">("confirm");
 
         if (!isOpen) return null;
@@ -36,7 +37,7 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefo
                       <>
                         <p>We’ve notified your accountability partner that you owe them ${penaltyAmount}</p>
                         <button onClick={onConfirm}>Start a New Habit</button>
-                        <button onClick={placeholder}>Restart Current Habit</button>
+                        <button onClick={restartSameHabit}>Restart Current Habit</button>
                       </>
                     ) : (
                       <>
