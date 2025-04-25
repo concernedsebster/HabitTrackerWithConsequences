@@ -361,6 +361,8 @@ function HabitTracker() {
               setHasClickedTextButton={setHasClickedTextButton}
               isInviteSent={isInviteSent}
               setIsInviteSent={setIsInviteSent} 
+              hasFailedBefore={hasFailedBefore}
+              setStep={setStep}
               name={name}
               onBack={() => setStep(4)}
               onNext={() => setStep(6)}  
@@ -406,6 +408,7 @@ function HabitTracker() {
           failureConsequenceType={failureConsequenceType}
           setFailureConsequenceType={setFailureConsequenceType}
           setStep={setStep}
+          setHasClickedTextButton={setHasClickedTextButton}
           />
 
           {/* Step 8: Habit Display */}

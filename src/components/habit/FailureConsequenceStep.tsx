@@ -12,13 +12,15 @@ type FailureConsequenceStepProps = {
     setHasClickedTextButton: (value: boolean) => void;
     isInviteSent: boolean;
     setIsInviteSent: (value: boolean) => void;
+    hasFailedBefore: boolean;
+    setStep: (value: number) => void;
 
     onBack: () => void;
     onNext: () => void;
     isValid: () => boolean;
 }
 
-function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceType, penaltyAmount, setPenaltyAmount, name, hasClickedTextButton, setHasClickedTextButton, isInviteSent, setIsInviteSent, onBack, onNext, isValid }: FailureConsequenceStepProps) {
+function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceType, penaltyAmount, setPenaltyAmount, name, hasClickedTextButton, setHasClickedTextButton, isInviteSent, setIsInviteSent, onBack, onNext, isValid, setStep, hasFailedBefore }: FailureConsequenceStepProps) {
     const [isAmountConfirmed, setIsAmountConfirmed] = React.useState(false);
     const userId = getAuth().currentUser?.uid
     if (!userId) {
@@ -83,7 +85,7 @@ function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceT
                                 }}>
                                 Text My Friend
                             </button>
-                            <button disabled={!hasClickedTextButton} onClick={onNext}>
+                            <button disabled={!hasClickedTextButton} onClick={hasFailedBefore ? () => setStep(7) : () => onNext()}>
                             I've Sent the Invite
                             </button>
                         </div>

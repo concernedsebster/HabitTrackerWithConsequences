@@ -6,6 +6,7 @@ type FailureConsequenceVerificationModalProps = {
     setStep: (value: number) => void;
     failureConsequenceType: "partner" | "app" | null;
     setFailureConsequenceType: (value: "partner" | "app" | null) => void;
+    setHasClickedTextButton: (value: boolean) => void;
 
 }
 
@@ -14,13 +15,15 @@ export default function FailureConsequenceVerificationModal(
     onClose, 
     setStep, 
     failureConsequenceType, 
-    setFailureConsequenceType}
+    setFailureConsequenceType,
+    setHasClickedTextButton}
     : FailureConsequenceVerificationModalProps) {
         if (!isOpen) return null;
 
     function handlePartnerSelect() {
         setFailureConsequenceType("partner");
         setStep(5);
+        setHasClickedTextButton(false);
         onClose();
     }
 
