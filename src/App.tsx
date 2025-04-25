@@ -28,6 +28,8 @@ import HabitDisplay from "src/components/tracker/HabitDisplay";
 import { serverTimestamp } from "firebase/firestore";
 import { AccountabilityPartnerPage } from "src/AccountabilityPartnerPage"
 import HabitCheckIn from "src/components/habit/HabitCheckIn";
+import failureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
+import FailureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -61,6 +63,7 @@ function HabitTracker() {
   const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
   const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
   const [hasFailedBefore, setHasFailedBefore] = React.useState<boolean>(false);
+  const [showFailureConsequenceVerificationModal, setShowFailureConsequenceVerificationModal] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -179,6 +182,10 @@ function HabitTracker() {
   }
 
   async function handleSubmit() {
+    if (failureConsequenceType === "partner" && !partnerIsVerified && hasFailedBefore === true && step === 7) {
+      setShowFailureConsequenceVerificationModal(true);
+      return;
+    }
     setIsSavingHabit(true);
     try {
       setIsModalOpen(false);
@@ -391,6 +398,15 @@ function HabitTracker() {
               penaltyAmount={penaltyAmount}
             />
           )}
+
+          {/* Failure Consequence Confirmation Modal */}
+          <FailureConsequenceVerificationModal
+          isOpen={showFailureConsequenceVerificationModal}
+          onClose={() => setShowFailureConsequenceVerificationModal(false)}
+          failureConsequenceType={failureConsequenceType}
+          setFailureConsequenceType={setFailureConsequenceType}
+          setStep={setStep}
+          />
 
           {/* Step 8: Habit Display */}
           {step === 8 && (
