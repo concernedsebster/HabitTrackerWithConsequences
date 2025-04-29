@@ -14,14 +14,31 @@ type FailureConsequenceStepProps = {
     setIsInviteSent: (value: boolean) => void;
     hasFailedBefore: boolean;
     setStep: (value: number) => void;
+    setIsAmountConfirmed: (value: boolean) => void;
+    isAmountConfirmed: boolean;
 
     onBack: () => void;
     onNext: () => void;
     isValid: () => boolean;
 }
 
-function FailureConsequenceStep({ failureConsequenceType, setFailureConsequenceType, penaltyAmount, setPenaltyAmount, name, hasClickedTextButton, setHasClickedTextButton, isInviteSent, setIsInviteSent, onBack, onNext, isValid, setStep, hasFailedBefore }: FailureConsequenceStepProps) {
-    const [isAmountConfirmed, setIsAmountConfirmed] = React.useState(false);
+function FailureConsequenceStep({ 
+    failureConsequenceType, 
+    setFailureConsequenceType, 
+    penaltyAmount, 
+    setPenaltyAmount, 
+    name, 
+    hasClickedTextButton, 
+    setHasClickedTextButton, 
+    isInviteSent, 
+    setIsInviteSent, 
+    onBack, 
+    onNext, 
+    isValid, 
+    setStep, 
+    hasFailedBefore,
+    setIsAmountConfirmed,
+    isAmountConfirmed }: FailureConsequenceStepProps) {
     const userId = getAuth().currentUser?.uid
     if (!userId) {
         alert("Please log in before sending this invite.");

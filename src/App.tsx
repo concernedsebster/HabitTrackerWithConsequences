@@ -64,6 +64,7 @@ function HabitTracker() {
   const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
   const [hasFailedBefore, setHasFailedBefore] = React.useState<boolean>(false);
   const [showFailureConsequenceVerificationModal, setShowFailureConsequenceVerificationModal] = React.useState<boolean>(false);
+  const [isAmountConfirmed, setIsAmountConfirmed] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -356,6 +357,8 @@ function HabitTracker() {
               failureConsequenceType={failureConsequenceType} 
               setFailureConsequenceType={setFailureConsequenceType}
               penaltyAmount={penaltyAmount ?? null}
+              setIsAmountConfirmed={setIsAmountConfirmed}
+              isAmountConfirmed={isAmountConfirmed}
               setPenaltyAmount={setPenaltyAmount}
               hasClickedTextButton={hasClickedTextButton}
               setHasClickedTextButton={setHasClickedTextButton}
@@ -407,6 +410,7 @@ function HabitTracker() {
           onClose={() => setShowFailureConsequenceVerificationModal(false)}
           failureConsequenceType={failureConsequenceType}
           setFailureConsequenceType={setFailureConsequenceType}
+          setIsAmountConfirmed={setIsAmountConfirmed}
           setStep={setStep}
           setHasClickedTextButton={setHasClickedTextButton}
           />
