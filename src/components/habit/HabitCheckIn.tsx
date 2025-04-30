@@ -2,6 +2,7 @@ import React from "react";
 import DeleteHabitModal from "src/ui/modals/DeleteHabitModal";
 import FailureModal from "src/ui/modals/FailureModal";
 import { doc, updateDoc, deleteDoc, getFirestore } from "firebase/firestore";
+import FailureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
 
 
 type HabitCheckInProps = {
@@ -16,9 +17,10 @@ type HabitCheckInProps = {
     hasFailedBefore: boolean;
     setStep: (value: number) => void;
     setHasFailedBefore: (value: boolean) => void;
+    setShowFailureConsequenceVerificationModal: (value: boolean) => void;
 }
 
-export default function HabitCheckIn({habit, deleteHabit, userId, successConsequence, penaltyAmount, failureConsequenceType, partnerIsVerified, hasFailedBefore, setStep, setHasFailedBefore, setPartnerIsVerified}: HabitCheckInProps) {
+export default function HabitCheckIn({habit, deleteHabit, userId, successConsequence, penaltyAmount, failureConsequenceType, partnerIsVerified, hasFailedBefore, setStep, setHasFailedBefore, setPartnerIsVerified, setShowFailureConsequenceVerificationModal}: HabitCheckInProps) {
     
     const [isFailureModalOpen, setIsFailureModalOpen] = React.useState(false);
     console.log("Penalty Amount in HabitCheckIn:", penaltyAmount)
@@ -60,7 +62,7 @@ export default function HabitCheckIn({habit, deleteHabit, userId, successConsequ
             console.log("Reset partner verification status to false.")
             setTimeout(()=> {
                 setIsRestarting(false);
-                setStep(7);
+                setShowFailureConsequenceVerificationModal(true);
             }, 1000);
             console.log("🔁 Restarting same habit from local state memory, not Firestore.")
         } catch (error) {
@@ -70,7 +72,22 @@ export default function HabitCheckIn({habit, deleteHabit, userId, successConsequ
 
     if (isRestarting) {
         return (
-          <div className="restart-screen">
+          <div
+            className="restart-screen"
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "white",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <h1>🧹🧹🧹</h1>
             <h2>Restarting your habit...</h2>
           </div>
         );

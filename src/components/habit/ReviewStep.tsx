@@ -19,9 +19,31 @@ type ReviewStepProps = {
     setIsModalOpen: (value: boolean) => void;
     handleSubmit: () => void;
     isSavingHabit: boolean;
+    hasFailedBefore: boolean;
 }
 
-function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequenceType, penaltyAmount, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit }: ReviewStepProps) {
+function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequenceType, penaltyAmount, successConsequence, onBack, onSubmit, isModalOpen, setIsModalOpen, handleSubmit, isSavingHabit, hasFailedBefore }: ReviewStepProps) {
+    if (isSavingHabit) {
+        return (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "white",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <h2>Saving your habit...</h2>
+          </div>
+        );
+      }
+      
     return (
         <>
             <h2>Review Your Habit Plan</h2>
@@ -29,10 +51,10 @@ function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence
                 <li><strong>Your habit:</strong> {habit}</li>
                  <li><strong>Frequency:</strong> {frequency}</li>
                 <li><strong>Until:</strong> {commitmentDate}</li> 
-                <li><strong>Consequence if you fail:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}.` : "Pay the app ${penaltyAmount}" }</li>
+                <li><strong>Consequence if you fail:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}.` : `Pay the app ${penaltyAmount}` }</li>
                 <li><strong>Reward if successful:</strong> {successConsequence}</li>
             </ul>
-            <h3>⚠️You get one chance to fail without consequences. After that, you'll have to pay up!⚠️</h3>
+            {hasFailedBefore ? <h3>⚠️This is your <strong>last chance</strong> to fail without consequences. Fail and you'll have to pay up!⚠️</h3> : <h3>⚠️You get one chance to fail without consequences. After that, you'll have to pay up!⚠️</h3>}
             <div>
                 <Modal
                     isOpen={isModalOpen}

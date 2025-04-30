@@ -65,6 +65,7 @@ function HabitTracker() {
   const [hasFailedBefore, setHasFailedBefore] = React.useState<boolean>(false);
   const [showFailureConsequenceVerificationModal, setShowFailureConsequenceVerificationModal] = React.useState<boolean>(false);
   const [isAmountConfirmed, setIsAmountConfirmed] = React.useState<boolean>(false);
+  const [hasConfirmedFailureConsequenceType, setHasConfirmedFailureConsequenceType] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -183,10 +184,6 @@ function HabitTracker() {
   }
 
   async function handleSubmit() {
-    if (failureConsequenceType === "partner" && !partnerIsVerified && hasFailedBefore === true && step === 7) {
-      setShowFailureConsequenceVerificationModal(true);
-      return;
-    }
     setIsSavingHabit(true);
     try {
       setIsModalOpen(false);
@@ -307,164 +304,151 @@ function HabitTracker() {
           <h1>✨One Habit✨</h1>
           <button onClick={logOut}>Log Out</button>
 
-          {/* Step 1: Enter Name */}
-          {step === 1 && (
-            <NameStep  
-              name={name} 
-              setName={setName} 
-              onNext={() => setStep(2)} 
-              isValid={isStepValid} 
-            />
-          )}
-
-          {/* Step 2: Enter Habit */}
-          {step === 2 && (
-            <HabitStep 
-              habit={habit} 
-              setHabit={setHabit} 
-              onBack={() => setStep(1)} 
-              onNext={() => setStep(3)} 
-              isValid={isStepValid} 
-            />
-          )}
-
-          {/* Step 3: Frequency */}
-          {step === 3 && (
-            <FrequencyStep 
-              frequency={frequency} 
-              setFrequency={setFrequency} 
-              frequencyOptions={frequencyOptions}
-              onBack={() => setStep(2)} 
-              onNext={() => setStep(4)} 
-              isValid={isStepValid} 
-            />
-          )}
-
-          {/* Step 4: Commitment Date */}
-          {step === 4 && (
-            <CommitmentDateStep 
-              commitmentDate={commitmentDate} 
-              setCommitmentDate={setCommitmentDate} 
-              onBack={() => setStep(3)} 
-              onNext={() => setStep(5)} 
-              isValid={isStepValid} 
-            />
-          )}
-
-          {/* Step 5: Failure Consequence */}
-          {step === 5 && (
-            <FailureConsequenceStep 
-              failureConsequenceType={failureConsequenceType} 
+          {showFailureConsequenceVerificationModal ? (
+            <FailureConsequenceVerificationModal
+              isOpen={true}
+              onClose={() => setShowFailureConsequenceVerificationModal(false)}
+              failureConsequenceType={failureConsequenceType}
               setFailureConsequenceType={setFailureConsequenceType}
-              penaltyAmount={penaltyAmount ?? null}
               setIsAmountConfirmed={setIsAmountConfirmed}
-              isAmountConfirmed={isAmountConfirmed}
-              setPenaltyAmount={setPenaltyAmount}
-              hasClickedTextButton={hasClickedTextButton}
-              setHasClickedTextButton={setHasClickedTextButton}
-              isInviteSent={isInviteSent}
-              setIsInviteSent={setIsInviteSent} 
-              hasFailedBefore={hasFailedBefore}
               setStep={setStep}
-              name={name}
-              onBack={() => setStep(4)}
-              onNext={() => setStep(6)}  
-              isValid={validateFailureConsequence} 
+              setHasClickedTextButton={setHasClickedTextButton}
+              setHasConfirmedFailureConsequenceType={setHasConfirmedFailureConsequenceType}
             />
-          )}
-
-          {/* Step 6: Success Consequence */}
-          {step === 6 && (
-            <SuccessConsequenceStep 
-              successConsequence={successConsequence} 
-              setSuccessConsequence={setSuccessConsequence} 
-              onBack={() => setStep(5)} 
-              onNext={() => setStep(7)} 
-              isValid={isStepValid} 
-            />
-          )}
-
-          {/* Step 7: Review */}
-          {step === 7 && (
-            <ReviewStep 
-              name={name}
-              habit={habit}
-              frequency={frequency}
-              commitmentDate={commitmentDate}
-              successConsequence={successConsequence}
-              onBack={() => setStep(6)} 
-              onSubmit={() => setIsModalOpen(true)}
-              isModalOpen={isModalOpen}
-              setIsModalOpen={setIsModalOpen} 
-              handleSubmit={handleSubmit}
-              isSavingHabit={isSavingHabit}
-              failureConsequenceType={failureConsequenceType}
-              partnerPhone={partnerPhone}
-              penaltyAmount={penaltyAmount}
-            />
-          )}
-
-          {/* Failure Consequence Confirmation Modal */}
-          <FailureConsequenceVerificationModal
-          isOpen={showFailureConsequenceVerificationModal}
-          onClose={() => setShowFailureConsequenceVerificationModal(false)}
-          failureConsequenceType={failureConsequenceType}
-          setFailureConsequenceType={setFailureConsequenceType}
-          setIsAmountConfirmed={setIsAmountConfirmed}
-          setStep={setStep}
-          setHasClickedTextButton={setHasClickedTextButton}
-          />
-
-          {/* Step 8: Habit Display */}
-          {step === 8 && (
-            isFetchingHabit ? (
-              <p>Loading habit...</p>
-            ) : (
+          ) : (
             <>
-            <HabitDisplay 
-              name={name}
-              habit={habit}
-              trackingHabit={trackingHabit}
-              frequency={frequency}
-              commitmentDate={commitmentDate}
-              successConsequence={successConsequence}
-              failureConsequenceType={failureConsequenceType}
-              partnerIsVerified={partnerIsVerified}
-              penaltyAmount={penaltyAmount}
-              isDeleteModalOpen={isDeleteModalOpen}
-              setIsDeleteModalOpen={setIsDeleteModalOpen}
-              deleteHabit={deleteHabit}
-              hasEditedCommitmentDate={hasEditedCommitmentDate}
-              handleEditDateClick={handleEditDateClick}
-              isEditingDate={isEditingDate}
-              newCommitmentDate={newCommitmentDate}
-              setNewCommitmentDate={setNewCommitmentDate}
-              isDateEditModalOpen={isDateEditModalOpen}
-              setIsDateEditModalOpen={setIsDateEditModalOpen}
-              confirmDateEdit={confirmDateEdit}
-              cancelDateEdit={cancelDateEdit}
-              logOut={logOut}
-            />
-            {habit && <HabitCheckIn 
-            userId={user?.uid ?? null}
-            habit={habit}
-            deleteHabit={deleteHabit}
-            successConsequence={successConsequence}
-            penaltyAmount={penaltyAmount}
-            failureConsequenceType={failureConsequenceType}
-            partnerIsVerified={partnerIsVerified}
-            hasFailedBefore={hasFailedBefore}
-            setStep={setStep}
-            setHasFailedBefore={setHasFailedBefore}
-            setPartnerIsVerified={setPartnerIsVerified}
-
-            
-            />}
+              {step === 1 && (
+                <NameStep  
+                  name={name} 
+                  setName={setName} 
+                  onNext={() => setStep(2)} 
+                  isValid={isStepValid} 
+                />
+              )}
+              {step === 2 && (
+                <HabitStep 
+                  habit={habit} 
+                  setHabit={setHabit} 
+                  onBack={() => setStep(1)} 
+                  onNext={() => setStep(3)} 
+                  isValid={isStepValid} 
+                />
+              )}
+              {step === 3 && (
+                <FrequencyStep 
+                  frequency={frequency} 
+                  setFrequency={setFrequency} 
+                  frequencyOptions={frequencyOptions}
+                  onBack={() => setStep(2)} 
+                  onNext={() => setStep(4)} 
+                  isValid={isStepValid} 
+                />
+              )}
+              {step === 4 && (
+                <CommitmentDateStep 
+                  commitmentDate={commitmentDate} 
+                  setCommitmentDate={setCommitmentDate} 
+                  onBack={() => setStep(3)} 
+                  onNext={() => setStep(5)} 
+                  isValid={isStepValid} 
+                />
+              )}
+              {step === 5 && (
+                <FailureConsequenceStep 
+                  failureConsequenceType={failureConsequenceType} 
+                  setFailureConsequenceType={setFailureConsequenceType}
+                  penaltyAmount={penaltyAmount ?? null}
+                  setIsAmountConfirmed={setIsAmountConfirmed}
+                  isAmountConfirmed={isAmountConfirmed}
+                  setPenaltyAmount={setPenaltyAmount}
+                  hasClickedTextButton={hasClickedTextButton}
+                  setHasClickedTextButton={setHasClickedTextButton}
+                  isInviteSent={isInviteSent}
+                  setIsInviteSent={setIsInviteSent} 
+                  hasFailedBefore={hasFailedBefore}
+                  setStep={setStep}
+                  name={name}
+                  onBack={() => setStep(4)}
+                  onNext={() => setStep(6)}  
+                  isValid={validateFailureConsequence} 
+                />
+              )}
+              {step === 6 && (
+                <SuccessConsequenceStep 
+                  successConsequence={successConsequence} 
+                  setSuccessConsequence={setSuccessConsequence} 
+                  onBack={() => setStep(5)} 
+                  onNext={() => setStep(7)} 
+                  isValid={isStepValid} 
+                />
+              )}
+              {step === 7 && (
+                <ReviewStep 
+                  name={name}
+                  habit={habit}
+                  frequency={frequency}
+                  commitmentDate={commitmentDate}
+                  successConsequence={successConsequence}
+                  onBack={() => setStep(6)} 
+                  onSubmit={() => setIsModalOpen(true)}
+                  isModalOpen={isModalOpen}
+                  setIsModalOpen={setIsModalOpen} 
+                  handleSubmit={handleSubmit}
+                  isSavingHabit={isSavingHabit}
+                  failureConsequenceType={failureConsequenceType}
+                  partnerPhone={partnerPhone}
+                  penaltyAmount={penaltyAmount}
+                  hasFailedBefore={hasFailedBefore}
+                />
+              )}
+              {step === 8 && (
+                isFetchingHabit ? (
+                  <p>Loading habit...</p>
+                ) : (
+                <>
+                  <HabitDisplay 
+                    name={name}
+                    habit={habit}
+                    trackingHabit={trackingHabit}
+                    frequency={frequency}
+                    commitmentDate={commitmentDate}
+                    successConsequence={successConsequence}
+                    failureConsequenceType={failureConsequenceType}
+                    partnerIsVerified={partnerIsVerified}
+                    penaltyAmount={penaltyAmount}
+                    isDeleteModalOpen={isDeleteModalOpen}
+                    setIsDeleteModalOpen={setIsDeleteModalOpen}
+                    deleteHabit={deleteHabit}
+                    hasEditedCommitmentDate={hasEditedCommitmentDate}
+                    handleEditDateClick={handleEditDateClick}
+                    isEditingDate={isEditingDate}
+                    newCommitmentDate={newCommitmentDate}
+                    setNewCommitmentDate={setNewCommitmentDate}
+                    isDateEditModalOpen={isDateEditModalOpen}
+                    setIsDateEditModalOpen={setIsDateEditModalOpen}
+                    confirmDateEdit={confirmDateEdit}
+                    cancelDateEdit={cancelDateEdit}
+                    logOut={logOut}
+                  />
+                  {habit && <HabitCheckIn 
+                    userId={user?.uid ?? null}
+                    habit={habit}
+                    deleteHabit={deleteHabit}
+                    successConsequence={successConsequence}
+                    penaltyAmount={penaltyAmount}
+                    failureConsequenceType={failureConsequenceType}
+                    partnerIsVerified={partnerIsVerified}
+                    hasFailedBefore={hasFailedBefore}
+                    setStep={setStep}
+                    setHasFailedBefore={setHasFailedBefore}
+                    setPartnerIsVerified={setPartnerIsVerified}
+                    setShowFailureConsequenceVerificationModal={setShowFailureConsequenceVerificationModal}
+                  />}
+                </>
+                )
+              )}
             </>
-          )
           )}
-
-          
         </>
       ) : (
         <PhoneAuth 
