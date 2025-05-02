@@ -62,10 +62,11 @@ function HabitTracker() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
   const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
   const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
-  const [hasFailedBefore, setHasFailedBefore] = React.useState<boolean>(false);
   const [showFailureConsequenceVerificationModal, setShowFailureConsequenceVerificationModal] = React.useState<boolean>(false);
   const [isAmountConfirmed, setIsAmountConfirmed] = React.useState<boolean>(false);
   const [hasConfirmedFailureConsequenceType, setHasConfirmedFailureConsequenceType] = React.useState<boolean>(false);
+  const [hasUsedFreeFailure, setHasUsedFreeFailure] = React.useState<boolean>(false);
+  const [isRestartingSameHabit, setIsRestartingSameHabit] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -109,8 +110,7 @@ function HabitTracker() {
     setHasEditedCommitmentDate,
     setIsFetchingHabit,
     setPartnerPhone,
-    setPenaltyAmount,
-    setHasFailedBefore,
+    setPenaltyAmount
   ); // Custom hook to fetch habit data
 
   // Debug logging
@@ -185,6 +185,7 @@ function HabitTracker() {
 
   async function handleSubmit() {
     setIsSavingHabit(true);
+    setIsRestartingSameHabit(false);
     try {
       setIsModalOpen(false);
       
@@ -197,7 +198,6 @@ function HabitTracker() {
       failureConsequenceType: failureConsequenceType as "partner" | "app",
       successConsequence,
       hasEditedCommitmentDate: false,
-      hasFailedBefore: false,
       penaltyAmount: penaltyAmount as number,
       partnerIsVerified: partnerIsVerified ?? false,
     };
@@ -365,7 +365,7 @@ function HabitTracker() {
                   setHasClickedTextButton={setHasClickedTextButton}
                   isInviteSent={isInviteSent}
                   setIsInviteSent={setIsInviteSent} 
-                  hasFailedBefore={hasFailedBefore}
+                  isRestartingSameHabit={isRestartingSameHabit}
                   setStep={setStep}
                   name={name}
                   onBack={() => setStep(4)}
@@ -396,9 +396,9 @@ function HabitTracker() {
                   handleSubmit={handleSubmit}
                   isSavingHabit={isSavingHabit}
                   failureConsequenceType={failureConsequenceType}
+                  hasUsedFreeFailure={hasUsedFreeFailure}
                   partnerPhone={partnerPhone}
                   penaltyAmount={penaltyAmount}
-                  hasFailedBefore={hasFailedBefore}
                 />
               )}
               {step === 8 && (
@@ -438,11 +438,13 @@ function HabitTracker() {
                     penaltyAmount={penaltyAmount}
                     failureConsequenceType={failureConsequenceType}
                     partnerIsVerified={partnerIsVerified}
-                    hasFailedBefore={hasFailedBefore}
                     setStep={setStep}
-                    setHasFailedBefore={setHasFailedBefore}
                     setPartnerIsVerified={setPartnerIsVerified}
                     setShowFailureConsequenceVerificationModal={setShowFailureConsequenceVerificationModal}
+                    setHasUsedFreeFailure={setHasUsedFreeFailure}
+                    hasUsedFreeFailure={hasUsedFreeFailure}
+                    isRestartingSameHabit={isRestartingSameHabit}
+                    setIsRestartingSameHabit={setIsRestartingSameHabit}
                   />}
                 </>
                 )

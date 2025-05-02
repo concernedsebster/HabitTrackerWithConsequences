@@ -12,10 +12,10 @@ type FailureConsequenceStepProps = {
     setHasClickedTextButton: (value: boolean) => void;
     isInviteSent: boolean;
     setIsInviteSent: (value: boolean) => void;
-    hasFailedBefore: boolean;
     setStep: (value: number) => void;
     setIsAmountConfirmed: (value: boolean) => void;
     isAmountConfirmed: boolean;
+    isRestartingSameHabit: boolean;
 
     onBack: () => void;
     onNext: () => void;
@@ -36,9 +36,9 @@ function FailureConsequenceStep({
     onNext, 
     isValid, 
     setStep, 
-    hasFailedBefore,
     setIsAmountConfirmed,
-    isAmountConfirmed }: FailureConsequenceStepProps) {
+    isAmountConfirmed,
+    isRestartingSameHabit }: FailureConsequenceStepProps) {
     const userId = getAuth().currentUser?.uid
     if (!userId) {
         alert("Please log in before sending this invite.");
@@ -102,7 +102,7 @@ function FailureConsequenceStep({
                                 }}>
                                 Text My Friend
                             </button>
-                            <button disabled={!hasClickedTextButton} onClick={hasFailedBefore ? () => setStep(7) : () => onNext()}>
+                            <button disabled={!hasClickedTextButton} onClick={isRestartingSameHabit ? () => setStep(7) : () => onNext()}>
                             I've Sent the Invite
                             </button>
                         </div>

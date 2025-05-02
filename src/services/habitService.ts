@@ -72,7 +72,6 @@ export const saveHabit = async (
     hasEditedCommitmentDate: boolean,
     penaltyAmount: number,
     partnerIsVerified: boolean,
-    hasFailedBefore: boolean
   },
 ) => {
   if (!userId) {
@@ -108,7 +107,6 @@ export const saveHabit = async (
       failureConsequenceType: habitData.failureConsequenceType,
       successConsequence: habitData.successConsequence,
       hasEditedCommitmentDate: habitData.hasEditedCommitmentDate ?? false,
-      hasFailedBefore: habitData.hasFailedBefore ?? false,
       penaltyAmount: habitData.penaltyAmount ?? 0,
       partnerIsVerified: habitData.partnerIsVerified ?? false,
       createdAt: serverTimestamp(),

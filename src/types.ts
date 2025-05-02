@@ -8,5 +8,4 @@ export type NewHabitPayload = {
     hasEditedCommitmentDate: boolean;
     penaltyAmount: number;
     partnerIsVerified: boolean;
-    hasFailedBefore: boolean;
   };

@@ -27,7 +27,7 @@ export default function FailureConsequenceVerificationModal(
 
     function handlePartnerSelect() {
         setFailureConsequenceType("partner");
-        setStep(7);
+        setStep(5);
         setHasClickedTextButton(false);
         setIsAmountConfirmed(true);
         setHasConfirmedFailureConsequenceType(true);

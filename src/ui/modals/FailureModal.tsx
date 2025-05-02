@@ -5,13 +5,13 @@ type failureModalProps = {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
-    hasFailedBefore: boolean;
+    hasUsedFreeFailure: boolean;
     penaltyAmount: number | "" | null;
     failureConsequenceType: "partner" | "app" | null;
     restartSameHabit: () => void;
 }
 
-export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefore, penaltyAmount, failureConsequenceType, restartSameHabit}: failureModalProps) {
+export default function FailureModal({ isOpen, onClose, onConfirm, hasUsedFreeFailure, penaltyAmount, failureConsequenceType, restartSameHabit}: failureModalProps) {
     const [step, setStep] = React.useState<"confirm" | "consequence">("confirm");
 
         if (!isOpen) return null;
@@ -22,7 +22,7 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefo
                 {step === "confirm" && (
                   <>
                     <h3>Confirm Failure</h3>
-                    <p>{hasFailedBefore 
+                    <p>{hasUsedFreeFailure 
                       ? "You've used up your one free failure. Now you need to pay the consequence."
                       : "This is your one and only chance at declaring failure without consequences. Are you sure?"
                     }</p>
@@ -42,8 +42,8 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasFailedBefo
                     ) : (
                       <>
                         <p>You'll be charged ${penaltyAmount}</p>
-                        <button onClick={onConfirm}>Pay & Try Again</button>
-                        <button onClick={() => setStep("confirm")}>Go Back</button>
+                        <button onClick={onConfirm}>Pay & Start New Habit</button>
+                        <button onClick={restartSameHabit}>Pay & Restart Current Habit</button>
                       </>
                     )}
                   </>

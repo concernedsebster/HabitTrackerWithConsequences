@@ -1,7 +1,8 @@
 import {useEffect} from "react";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { getHabitFromFirestore } from "../services/habitService";
+import { doc, getDoc } from "firebase/firestore";
 
 export function useFirebaseAuthListener(
   setUser: (user: any | null) => void, 
@@ -30,7 +31,21 @@ export function useFirebaseAuthListener(
 
 // Fetch habit data after authentication
 export function useSyncHabitData(
-user: { uid: string; } | null, setStep: (step: number) => void, setName: (name: string) => void, setHabit: (value: string) => void, setTrackingHabit: (value: string) => void, setFrequency: (value: string) => void, setCommitmentDate: (value: string) => void, setFailureConsequenceType: (value: 'partner' | 'app' | null) => void, setPartnerIsVerified: (value: boolean | null) => void, setSuccessConsequence: (value: string) => void, setHasEditedCommitmentDate: (value: boolean) => void, setIsFetchingHabit: (value: boolean) => void, setPartnerPhone: (value: string) => void, setPenaltyAmount: (value: number | null) => void, setHasFailedBefore: (value: boolean) => void) {
+user: { uid: string; } | null, 
+setStep: (step: number) => void, 
+setName: (name: string) => void, 
+setHabit: (value: string) => void, 
+setTrackingHabit: (value: string) => void, 
+setFrequency: (value: string) => void, 
+setCommitmentDate: (value: string) => void, 
+setFailureConsequenceType: (value: 'partner' | 'app' | null) => void, 
+setPartnerIsVerified: (value: boolean | null) => void, 
+setSuccessConsequence: (value: string) => void, 
+setHasEditedCommitmentDate: (value: boolean) => void, 
+setIsFetchingHabit: (value: boolean) => void, 
+setPartnerPhone: (value: string) => void, 
+setPenaltyAmount: (value: number | null) => void
+) {
   // This hook fetches the user's habit data from Firestore after the user is authenticated.
 useEffect(() => {
     if (!user) return;
@@ -51,10 +66,9 @@ useEffect(() => {
         setCommitmentDate(habitData.commitmentDate);
         setFailureConsequenceType(habitData.failureConsequenceType);
         setPenaltyAmount(habitData.penaltyAmount);
-        setHasFailedBefore(habitData.setHasFailedBefore || false);
         setPartnerIsVerified(habitData.partnerIsVerified)
         setSuccessConsequence(habitData.successConsequence);
-        setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false);
+        setHasEditedCommitmentDate(habitData.hasEditedCommitmentDate || false)
         
         setStep(8); // Move user to habit-tracking UI
       } else {
