@@ -30,6 +30,7 @@ import { AccountabilityPartnerPage } from "src/AccountabilityPartnerPage"
 import HabitCheckIn from "src/components/habit/HabitCheckIn";
 import failureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
 import FailureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
+import { markFreeFailureUsed } from "src/services/userService";
 
 function HabitTracker() {
   React.useEffect(() => {
@@ -238,7 +239,7 @@ function HabitTracker() {
     }
   }
 
-  async function deleteHabit() {
+async function deleteHabit() {
   setIsDeletingHabit(true);
 
   try {
@@ -255,6 +256,14 @@ function HabitTracker() {
       await deleteDoc(docRef);
       console.log("🗑️ Habit deleted successfully");
 
+      // Mark free failure as used after deleting habit
+      try {
+        await markFreeFailureUsed(userId);
+        setHasUsedFreeFailure(true);
+      } catch (error) {
+        console.error("🚨 Error updating hasUsedFreeFailure after deleting habit:", error);
+      }
+
       // Reset state
       setName("");
       setHabit("");
@@ -262,8 +271,10 @@ function HabitTracker() {
       setFrequency("");
       setCommitmentDate("");
       setFailureConsequenceType(null);
+      setPenaltyAmount("");
       setSuccessConsequence("");
       setHasEditedCommitmentDate(false);
+      setHasClickedTextButton(false);
       setStep(1); // Start from the beginning
     } else {
       console.warn("⚠️ No habit found to delete!");

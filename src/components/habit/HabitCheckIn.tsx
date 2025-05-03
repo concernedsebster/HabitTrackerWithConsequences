@@ -2,7 +2,7 @@ import React from "react";
 import DeleteHabitModal from "src/ui/modals/DeleteHabitModal";
 import FailureModal from "src/ui/modals/FailureModal";
 import { doc, updateDoc, deleteDoc, getFirestore } from "firebase/firestore";
-import FailureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
+import { markFreeFailureUsed } from "src/services/userService";
 
 
 type HabitCheckInProps = {
@@ -49,16 +49,15 @@ export default function HabitCheckIn(
     }
     async function handleFailureConfirm() {
         console.log("hasUsedFreeFailure:", hasUsedFreeFailure);
+        if (!userId) {
+            console.error("❌ Cannot proceed: userId is null in handleFailureConfirm. Habit failure logic skipped.");
+            return;
+          }
         if (!hasUsedFreeFailure) {
-            const firestore = getFirestore();
-            if (!userId) {
-                console.error("Missing userId. Cannot update hasUsedFreeFailure in Firestore.");
-                return;
-            }
-            const docRef = doc(firestore, "users", userId);
-            await updateDoc(docRef, {hasUsedFreeFailure: true});
+            await markFreeFailureUsed(userId);
             setHasUsedFreeFailure(true);
             deleteHabit();
+            console.log("✅ Free failure recorded in Firestore and habit deleted.");
         } else {
             // proceed with consequence flow (modal or redirect based on failureConsequenceType)
         }   
@@ -70,7 +69,8 @@ export default function HabitCheckIn(
             return;
         }
         setIsLoadingRestart(true);
-        setIsRestartingSameHabit(true); // ✅ Set this immediately for logical flow handling
+        await markFreeFailureUsed(userId);
+        setHasUsedFreeFailure(true);       // Local mirror // ✅ Set this immediately for logical flow handling
         const firestore = getFirestore();
         const docRef = doc(firestore, "habits", userId);
         try {
