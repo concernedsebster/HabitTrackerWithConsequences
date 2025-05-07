@@ -23,7 +23,7 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasUsedFreeFa
                   <>
                     <h3>Confirm Failure</h3>
                     <p>{hasUsedFreeFailure 
-                      ? "You've used up your one free failure. Now you need to pay the consequence."
+                      ? "If you fail, you'll need to pay the consequence."
                       : "This is your one and only chance at declaring failure without consequences. Are you sure?"
                     }</p>
                     <button onClick={() => setStep("consequence")}>Declare Failure</button>
@@ -35,7 +35,7 @@ export default function FailureModal({ isOpen, onClose, onConfirm, hasUsedFreeFa
                   <>
                     {failureConsequenceType === "partner" ? (
                       <>
-                        <p>We’ve notified your accountability partner that you owe them ${penaltyAmount}</p>
+                        <p>{hasUsedFreeFailure ? 'We’ve notified your accountability partner that you owe them ${penaltyAmount}' : 'Better luck next time! 💪 (This one\'s on us, if you fail again you\'ll have to pay up!)'}</p>
                         <button onClick={onConfirm}>Start a New Habit</button>
                         <button onClick={restartSameHabit}>Restart Current Habit</button>
                       </>

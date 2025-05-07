@@ -3,7 +3,7 @@ import { NewHabitPayload } from "src/types";
 import { signOut, User } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc, getFirestore, increment } from "firebase/firestore";
 import { Routes, Route } from "react-router-dom";
 
 // Import service functions
@@ -13,6 +13,7 @@ import {
   updateCommitmentDate, 
   deleteUserHabit
 } from "src/services/habitService";
+import { incrementGiveUpCount } from "src/services/userService";
 
 // Import components
 import PhoneAuth from "src/components/auth/PhoneAuth";
@@ -60,7 +61,7 @@ function HabitTracker() {
   const [newCommitmentDate, setNewCommitmentDate] = React.useState<string>("");
   const [hasEditedCommitmentDate, setHasEditedCommitmentDate] = React.useState<boolean>(false);
   const [isDateEditModalOpen, setIsDateEditModalOpen] = React.useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState<boolean>(false);
+  const [isGiveUpModalOpen, setIsGiveUpModalOpen] = React.useState<boolean>(false);
   const [isDeletingHabit, setIsDeletingHabit] = React.useState<boolean>(false);
   const [partnerIsVerified, setPartnerIsVerified] = React.useState<boolean | null>(null);
   const [showFailureConsequenceVerificationModal, setShowFailureConsequenceVerificationModal] = React.useState<boolean>(false);
@@ -68,6 +69,10 @@ function HabitTracker() {
   const [hasConfirmedFailureConsequenceType, setHasConfirmedFailureConsequenceType] = React.useState<boolean>(false);
   const [hasUsedFreeFailure, setHasUsedFreeFailure] = React.useState<boolean>(false);
   const [isRestartingSameHabit, setIsRestartingSameHabit] = React.useState<boolean>(false);
+  const [isLoadingRestart, setIsLoadingRestart] = React.useState<boolean>(false);
+  const [giveUpCount, setGiveUpCount] = React.useState<number>(0);
+  const [fromGiveUp, setFromGiveUp] = React.useState<boolean>(false);
+  const [hasPaymentMethod, setHasPaymentMethod] = React.useState<boolean>(false);
 
   const frequencyOptions = [
     "Everyday",
@@ -154,6 +159,19 @@ function HabitTracker() {
         frequency,
       );
   }, [habit, trackingHabit, frequency]);
+
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.uid) return;
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        setHasPaymentMethod(userData.hasPaymentMethod ?? false);
+      }
+    };
+    fetchUserData();
+  }, [user]);
 
   function isStepValid() {
     switch (step) {
@@ -288,6 +306,41 @@ async function deleteHabit() {
   }
 }
 
+// Restart same habit function
+async function restartSameHabit() {
+  if (!user?.uid) {
+    console.error("Missing userId! Can't restart same habit.");
+    return;
+  }
+  
+  setIsLoadingRestart(true);
+
+  if (fromGiveUp) {
+    await incrementGiveUpCount(user.uid);
+    setGiveUpCount((prev) => prev +1);
+  }
+
+  await markFreeFailureUsed(user.uid);
+  setHasUsedFreeFailure(true);
+  const firestore = getFirestore();
+  const docRef = doc(firestore, "habits", user.uid);
+  try {
+    await deleteDoc(docRef);
+    console.log("Deleting habit from Firestore...");
+    setHasUsedFreeFailure(true);
+    console.log("Set hasUsedFreeFailure to true.");
+    setPartnerIsVerified(false);
+    console.log("Reset partner verification status to false.");
+    setTimeout(() => {
+      setIsLoadingRestart(false);
+      setShowFailureConsequenceVerificationModal(true);
+    }, 1000);
+    console.log("🔁 Restarting same habit from local state memory, not Firestore.");
+  } catch (error) {
+    console.error("Failed to restart same habit:", error);
+  }
+}
+
   function handleEditDateClick() {
     if (hasEditedCommitmentDate) {
       console.log("🚨 You can only edit the commitment date once.");
@@ -305,6 +358,35 @@ async function deleteHabit() {
     console.log("🚨 Date edit cancelled.");
   }
 
+  if (isLoadingRestart) {
+    return (
+      <div
+        className="restart-screen"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "white",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <h1>🧹🧹🧹</h1>
+        <h2>Restarting your habit...</h2>
+      </div>
+    );
+  }
+  if (isDeletingHabit) {
+    return (
+      <div className="loading-screen">
+        <h2>Bringing you back to square one...</h2>
+      </div>
+    );
+  }
   return (
     <div>
       <Routes>
@@ -427,8 +509,8 @@ async function deleteHabit() {
                     failureConsequenceType={failureConsequenceType}
                     partnerIsVerified={partnerIsVerified}
                     penaltyAmount={penaltyAmount}
-                    isDeleteModalOpen={isDeleteModalOpen}
-                    setIsDeleteModalOpen={setIsDeleteModalOpen}
+                    isGiveUpModalOpen={isGiveUpModalOpen}
+                    setIsGiveUpModalOpen={setIsGiveUpModalOpen}
                     deleteHabit={deleteHabit}
                     hasEditedCommitmentDate={hasEditedCommitmentDate}
                     handleEditDateClick={handleEditDateClick}
@@ -440,6 +522,10 @@ async function deleteHabit() {
                     confirmDateEdit={confirmDateEdit}
                     cancelDateEdit={cancelDateEdit}
                     logOut={logOut}
+                    hasUsedFreeFailure={hasUsedFreeFailure}
+                    restartSameHabit={restartSameHabit}
+                    hasPaymentMethod={hasPaymentMethod}
+                    giveUpCount={giveUpCount}
                   />
                   {habit && <HabitCheckIn 
                     userId={user?.uid ?? null}
@@ -456,6 +542,7 @@ async function deleteHabit() {
                     hasUsedFreeFailure={hasUsedFreeFailure}
                     isRestartingSameHabit={isRestartingSameHabit}
                     setIsRestartingSameHabit={setIsRestartingSameHabit}
+                    restartSameHabit={restartSameHabit}
                   />}
                 </>
                 )

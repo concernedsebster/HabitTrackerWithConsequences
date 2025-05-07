@@ -1,5 +1,5 @@
 import React from "react";
-import DeleteHabitModal from "src/ui/modals/DeleteHabitModal";
+import GiveUpModal from "src/ui/modals/GiveUpModal";
 import FailureModal from "src/ui/modals/FailureModal";
 import { doc, updateDoc, deleteDoc, getFirestore } from "firebase/firestore";
 import { markFreeFailureUsed } from "src/services/userService";
@@ -20,6 +20,7 @@ type HabitCheckInProps = {
     setHasUsedFreeFailure: (value: boolean) => void;
     isRestartingSameHabit: boolean;
     setIsRestartingSameHabit: (value: boolean) => void;
+    restartSameHabit: () => void;
 }
 
 export default function HabitCheckIn(
@@ -37,7 +38,8 @@ export default function HabitCheckIn(
         setHasUsedFreeFailure,
         hasUsedFreeFailure,
         isRestartingSameHabit,
-        setIsRestartingSameHabit
+        setIsRestartingSameHabit,
+        restartSameHabit,
     }: HabitCheckInProps) {
     
     const [isFailureModalOpen, setIsFailureModalOpen] = React.useState(false);
@@ -61,33 +63,6 @@ export default function HabitCheckIn(
         } else {
             // proceed with consequence flow (modal or redirect based on failureConsequenceType)
         }   
-    }
-
-    async function restartSameHabit() {
-        if (!userId) {
-            console.error("Missing userId! Can't restart same habit.")
-            return;
-        }
-        setIsLoadingRestart(true);
-        await markFreeFailureUsed(userId);
-        setHasUsedFreeFailure(true);       // Local mirror // ✅ Set this immediately for logical flow handling
-        const firestore = getFirestore();
-        const docRef = doc(firestore, "habits", userId);
-        try {
-            await deleteDoc(docRef);
-            console.log("Deleting habit from Firestore...");
-            setHasUsedFreeFailure(true);
-            console.log("Set hasUsedFreeFailure to true.");
-            setPartnerIsVerified(false);
-            console.log("Reset partner verification status to false.");
-            setTimeout(()=> {
-                setIsLoadingRestart(false);
-                setShowFailureConsequenceVerificationModal(true);
-            }, 1000);
-            console.log("🔁 Restarting same habit from local state memory, not Firestore.");
-        } catch (error) {
-            console.error("Failed to restart same habit:", error);
-        }
     }
 
     if (isLoadingRestart) {

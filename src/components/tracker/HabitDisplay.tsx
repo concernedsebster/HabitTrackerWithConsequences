@@ -1,5 +1,6 @@
 import React from 'react';
-import DeleteHabitModal from 'src/ui/modals/DeleteHabitModal';
+import GiveUpModal from 'src/ui/modals/GiveUpModal';
+import restartSameHabit from 'src/components/habit/HabitCheckIn';
 
 type HabitDisplayProps = {
   name: string;
@@ -11,8 +12,8 @@ type HabitDisplayProps = {
   partnerIsVerified: null | boolean;
   penaltyAmount: number | '' | null
   successConsequence: string;
-  isDeleteModalOpen: boolean;
-  setIsDeleteModalOpen: (value: boolean) => void;
+  isGiveUpModalOpen: boolean;
+  setIsGiveUpModalOpen: (value: boolean) => void;
   deleteHabit: () => void;
   setIsDateEditModalOpen: (value: boolean) => void;
   hasEditedCommitmentDate: boolean;
@@ -24,6 +25,8 @@ type HabitDisplayProps = {
   confirmDateEdit: () => void;
   cancelDateEdit: () => void;
   logOut: () => void;
+  hasUsedFreeFailure: boolean;
+  restartSameHabit: () => void;
 
 }
 
@@ -37,8 +40,8 @@ function HabitDisplay({
   partnerIsVerified,
   penaltyAmount,
   successConsequence,
-  isDeleteModalOpen,
-  setIsDeleteModalOpen,
+  isGiveUpModalOpen,
+  setIsGiveUpModalOpen,
   deleteHabit,
   setIsDateEditModalOpen,
   hasEditedCommitmentDate,
@@ -49,7 +52,9 @@ function HabitDisplay({
   isDateEditModalOpen,
   confirmDateEdit,
   cancelDateEdit,
-  logOut
+  logOut, 
+  hasUsedFreeFailure,
+  restartSameHabit
 }: HabitDisplayProps) {
   return (
     <>
@@ -62,15 +67,16 @@ function HabitDisplay({
             <li><strong>Reward if successful:</strong> {successConsequence}</li>
         </ul>
       <button onClick={logOut}>Log Out</button>
-      <button onClick={() => setIsDeleteModalOpen(true)}>Reset & Start Over</button>
+      <button onClick={() => setIsGiveUpModalOpen(true)}>Reset & Start Over</button>
       
       <div className="delete-habit-modal-section">
-        <DeleteHabitModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
+        <GiveUpModal
+          hasUsedFreeFailure={hasUsedFreeFailure}
+          isOpen={isGiveUpModalOpen}
+          onClose={() => setIsGiveUpModalOpen(false)}
           onConfirm={() => {
-            deleteHabit();
-            setIsDeleteModalOpen(false);
+            restartSameHabit();
+            setIsGiveUpModalOpen(false);
           }}
         />
       </div>

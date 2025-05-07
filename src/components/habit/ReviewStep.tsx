@@ -54,7 +54,7 @@ function ReviewStep({ name, habit, frequency, commitmentDate, failureConsequence
                 <li><strong>Consequence if you fail:</strong> {(failureConsequenceType === 'partner') ? `Pay a friend ${penaltyAmount}.` : `Pay the app ${penaltyAmount}` }</li>
                 <li><strong>Reward if successful:</strong> {successConsequence}</li>
             </ul>
-            {hasUsedFreeFailure ? <h3>⚠️This is your <strong>last chance</strong> to fail without consequences. Fail and you'll have to pay up!⚠️</h3> : <h3>⚠️You get one chance to fail without consequences. After that, you'll have to pay up!⚠️</h3>}
+            {hasUsedFreeFailure ? <h3>⚠️Friendly reminder that if you fail, you'll have to pay up!⚠️</h3> : <h3>⚠️You get <strong>one and only chance</strong> to fail without consequences. After that, you'll have to pay up!⚠️</h3>}
             <div>
                 <Modal
                     isOpen={isModalOpen}
