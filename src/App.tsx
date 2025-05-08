@@ -168,6 +168,7 @@ function HabitTracker() {
       if (docSnap.exists()) {
         const userData = docSnap.data();
         setHasPaymentMethod(userData.hasPaymentMethod ?? false);
+        setGiveUpCount(userData.giveUpCount ?? 0);
       }
     };
     fetchUserData();
@@ -307,18 +308,18 @@ async function deleteHabit() {
 }
 
 // Restart same habit function
-async function restartSameHabit() {
+async function restartSameHabit(fromGiveUp: boolean = false) {
   if (!user?.uid) {
     console.error("Missing userId! Can't restart same habit.");
     return;
   }
   
-  setIsLoadingRestart(true);
-
   if (fromGiveUp) {
     await incrementGiveUpCount(user.uid);
     setGiveUpCount((prev) => prev +1);
   }
+
+  setIsLoadingRestart(true);
 
   await markFreeFailureUsed(user.uid);
   setHasUsedFreeFailure(true);
@@ -510,6 +511,7 @@ async function restartSameHabit() {
                     partnerIsVerified={partnerIsVerified}
                     penaltyAmount={penaltyAmount}
                     isGiveUpModalOpen={isGiveUpModalOpen}
+                    setFromGiveUp={setFromGiveUp}
                     setIsGiveUpModalOpen={setIsGiveUpModalOpen}
                     deleteHabit={deleteHabit}
                     hasEditedCommitmentDate={hasEditedCommitmentDate}

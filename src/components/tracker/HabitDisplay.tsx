@@ -26,8 +26,10 @@ type HabitDisplayProps = {
   cancelDateEdit: () => void;
   logOut: () => void;
   hasUsedFreeFailure: boolean;
-  restartSameHabit: () => void;
-
+  restartSameHabit: (value: boolean) => void;
+  hasPaymentMethod: boolean;
+  giveUpCount: number;
+  setFromGiveUp: (fromGiveUp: boolean) => void;
 }
 
 function HabitDisplay({ 
@@ -54,7 +56,10 @@ function HabitDisplay({
   cancelDateEdit,
   logOut, 
   hasUsedFreeFailure,
-  restartSameHabit
+  restartSameHabit,
+  hasPaymentMethod,
+  giveUpCount,
+  setFromGiveUp
 }: HabitDisplayProps) {
   return (
     <>
@@ -72,10 +77,12 @@ function HabitDisplay({
       <div className="delete-habit-modal-section">
         <GiveUpModal
           hasUsedFreeFailure={hasUsedFreeFailure}
+          hasPaymentMethod={hasPaymentMethod}
+          giveUpCount={giveUpCount}
           isOpen={isGiveUpModalOpen}
           onClose={() => setIsGiveUpModalOpen(false)}
           onConfirm={() => {
-            restartSameHabit();
+            restartSameHabit(true);
             setIsGiveUpModalOpen(false);
           }}
         />
