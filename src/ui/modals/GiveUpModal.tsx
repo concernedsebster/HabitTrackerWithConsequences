@@ -39,8 +39,8 @@ function GiveUpModal({
                 <p>We’ll only charge you if you give up next time.</p>
                 <p>Free resets remaining: 0</p>
                 <div className="modal-buttons">
-                  <button onClick={onConfirm}>Add Payment Method</button>
-                  <button onClick={onClose}>No, I'm Staying Locked In</button>
+                  <button onClick={onConfirm}>Add Payment Method & Try Again</button>
+                  <button onClick={onClose}>Delete Account & Uninstall App</button>
                 </div>
               </>
             )

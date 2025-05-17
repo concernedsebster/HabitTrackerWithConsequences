@@ -408,6 +408,7 @@ async function restartSameHabit(fromGiveUp: boolean = false) {
               setStep={setStep}
               setHasClickedTextButton={setHasClickedTextButton}
               setHasConfirmedFailureConsequenceType={setHasConfirmedFailureConsequenceType}
+              giveUpCount={giveUpCount}
             />
           ) : (
             <>

@@ -9,6 +9,7 @@ type FailureConsequenceVerificationModalProps = {
     setHasClickedTextButton: (value: boolean) => void;
     setIsAmountConfirmed: (value: boolean) => void;
     setHasConfirmedFailureConsequenceType: (value: boolean) => void;
+    giveUpCount: number;
 
 }
 
@@ -20,7 +21,8 @@ export default function FailureConsequenceVerificationModal(
     setFailureConsequenceType,
     setHasClickedTextButton, 
     setIsAmountConfirmed,
-    setHasConfirmedFailureConsequenceType
+    setHasConfirmedFailureConsequenceType,
+    giveUpCount
 }
     : FailureConsequenceVerificationModalProps) {
         if (!isOpen) return null;
@@ -48,7 +50,8 @@ export default function FailureConsequenceVerificationModal(
                 <div className="modal-content">
                     <h3>How do you want to be held accountable this time?</h3>
                         <div className="modal-buttons">
-                            <button onClick={handlePartnerSelect}>Pay a Friend</button>
+                            <button disabled={giveUpCount >= 2}onClick={handlePartnerSelect}>Pay a Friend</button>
+                            <p style={{ color: 'gray', fontSize: 12, marginTop: 4 }}>Pay a Friend is disabled until you succeed in at least one habit.</p>
                             <button onClick={handleAppSelect}>Pay the App</button>
             </div>
                 </div>
@@ -56,3 +59,4 @@ export default function FailureConsequenceVerificationModal(
             </>
         )
 }
+//<button disabled={!hasClickedTextButton} onClick={isRestartingSameHabit
