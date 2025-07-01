@@ -29,8 +29,8 @@ import HabitDisplay from "src/components/tracker/HabitDisplay";
 import { serverTimestamp } from "firebase/firestore";
 import { AccountabilityPartnerPage } from "src/AccountabilityPartnerPage"
 import HabitCheckIn from "src/components/habit/HabitCheckIn";
-import failureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
-import FailureConsequenceVerificationModal from "src/ui/modals/FailureConsequenceVerificationModal";
+import failureConsequenceVerificationModal from "./modals/FailureConsequenceVerificationModal";
+import FailureConsequenceVerificationModal from "./modals/FailureConsequenceVerificationModal";
 import { markFreeFailureUsed } from "src/services/userService";
 
 function HabitTracker() {
